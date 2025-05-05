@@ -121,7 +121,7 @@ const AllRestaurantsScreen = ({ navigation, route }) => {
         <View style={styles.restaurantHeader}>
           <Text style={styles.restaurantName}>{item.name}</Text>
           <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16} color="#FFD700" />
+            <Ionicons name="star" size={16} color="#E23744" />
             <Text style={styles.rating}>{item.rating}</Text>
           </View>
         </View>
@@ -138,7 +138,7 @@ const AllRestaurantsScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#FF8C00" />
+      <StatusBar backgroundColor="#E23744" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#333" />

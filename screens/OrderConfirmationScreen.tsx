@@ -51,7 +51,7 @@ const CheckoutScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Delivery Address</Text>
           <View style={styles.addressCard}>
             <View style={styles.addressHeader}>
-              <Ionicons name="location-outline" size={20} color="#FF8C00" />
+              <Ionicons name="location-outline" size={20} color="#E23744" />
               <Text style={styles.addressTitle}>Home</Text>
               <TouchableOpacity style={styles.changeButton}>
                 <Text style={styles.changeButtonText}>Change</Text>
@@ -75,7 +75,7 @@ const CheckoutScreen = ({ navigation }) => {
               <Ionicons 
                 name="card-outline" 
                 size={24} 
-                color={paymentMethod === 'card' ? '#FF8C00' : '#666'} 
+                color={paymentMethod === 'card' ? '#E23744' : '#666'} 
               />
               <Text style={[
                 styles.paymentMethodText,
@@ -95,7 +95,7 @@ const CheckoutScreen = ({ navigation }) => {
               <Ionicons 
                 name="logo-paypal" 
                 size={24} 
-                color={paymentMethod === 'paypal' ? '#FF8C00' : '#666'} 
+                color={paymentMethod === 'paypal' ? '#E23744' : '#666'} 
               />
               <Text style={[
                 styles.paymentMethodText,
@@ -115,7 +115,7 @@ const CheckoutScreen = ({ navigation }) => {
               <Ionicons 
                 name="cash-outline" 
                 size={24} 
-                color={paymentMethod === 'cash' ? '#FF8C00' : '#666'} 
+                color={paymentMethod === 'cash' ? '#E23744' : '#666'} 
               />
               <Text style={[
                 styles.paymentMethodText,
@@ -161,7 +161,7 @@ const CheckoutScreen = ({ navigation }) => {
                   value={saveCard}
                   onValueChange={setSaveCard}
                   trackColor={{ false: "#767577", true: "#FFEEDD" }}
-                  thumbColor={saveCard ? "#FF8C00" : "#f4f3f4"}
+                  thumbColor={saveCard ? "#E23744" : "#f4f3f4"}
                 />
                 <Text style={styles.saveCardText}>Save card for future payments</Text>
               </View>
@@ -214,7 +214,7 @@ const CheckoutScreen = ({ navigation }) => {
         onPress={handlePlaceOrder}
       >
         <LinearGradient
-          colors={['#FF8C00', '#FF6347']}
+          colors={['#E23744', '#E23744']}
           style={styles.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   changeButtonText: {
-    color: '#FF8C00',
+    color: '#E23744',
     fontSize: 12,
     fontWeight: 'bold',
   },
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   selectedPaymentMethod: {
-    borderColor: '#FF8C00',
+    borderColor: '#E23744',
     backgroundColor: '#FFF9F2',
   },
   paymentMethodText: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   selectedPaymentMethodText: {
-    color: '#FF8C00',
+    color: '#E23744',
     fontWeight: 'bold',
   },
   cardForm: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF8C00',
+    color: '#E23744',
   },
   placeOrderButton: {
     margin: 20,

@@ -203,7 +203,7 @@ const ProfileScreen = ({ navigation }) => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <LinearGradient
-        colors={['#FF8C00', '#FF6347']}
+        colors={['#E23744', '#E23744']}
         style={styles.header}
       >
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -229,7 +229,7 @@ const ProfileScreen = ({ navigation }) => {
           />
           {editing && (
             <TouchableOpacity style={styles.cameraIcon}>
-              <Ionicons name="camera" size={20} color="#FF8C00" />
+              <Ionicons name="camera" size={20} color="#E23744" />
             </TouchableOpacity>
           )}
         </View>
@@ -246,14 +246,14 @@ const ProfileScreen = ({ navigation }) => {
         <Ionicons 
           name={expandedSections.personalInfo ? "chevron-up" : "chevron-down"} 
           size={20} 
-          color="#FF8C00" 
+          color="#E23744" 
         />
       </TouchableOpacity>
       
       {expandedSections.personalInfo && (
         <View style={styles.section}>
           <View style={styles.infoItem}>
-            <Ionicons name="person" size={20} color="#FF8C00" />
+            <Ionicons name="person" size={20} color="#E23744" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Full Name</Text>
               {editing ? (
@@ -269,7 +269,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.infoItem}>
-            <Ionicons name="mail" size={20} color="#FF8C00" />
+            <Ionicons name="mail" size={20} color="#E23744" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Email</Text>
               {editing ? (
@@ -286,7 +286,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.infoItem}>
-            <Ionicons name="call" size={20} color="#FF8C00" />
+            <Ionicons name="call" size={20} color="#E23744" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Phone Number</Text>
               {editing ? (
@@ -303,7 +303,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.infoItem}>
-            <Ionicons name="location" size={20} color="#FF8C00" />
+            <Ionicons name="location" size={20} color="#E23744" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Address</Text>
               {editing ? (
@@ -329,7 +329,7 @@ const ProfileScreen = ({ navigation }) => {
         <Ionicons 
           name={expandedSections.preferences ? "chevron-up" : "chevron-down"} 
           size={20} 
-          color="#FF8C00" 
+          color="#E23744" 
         />
       </TouchableOpacity>
       
@@ -337,33 +337,33 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.preferenceItem}>
             <View style={styles.preferenceInfo}>
-              <Ionicons name="notifications" size={20} color="#FF8C00" />
+              <Ionicons name="notifications" size={20} color="#E23744" />
               <Text style={styles.preferenceLabel}>Notifications</Text>
             </View>
             <Switch
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
               trackColor={{ false: "#767577", true: "#FFEEDD" }}
-              thumbColor={notificationsEnabled ? "#FF8C00" : "#f4f3f4"}
+              thumbColor={notificationsEnabled ? "#E23744" : "#f4f3f4"}
             />
           </View>
 
           <View style={styles.preferenceItem}>
             <View style={styles.preferenceInfo}>
-              <Ionicons name="moon" size={20} color="#FF8C00" />
+              <Ionicons name="moon" size={20} color="#E23744" />
               <Text style={styles.preferenceLabel}>Dark Mode</Text>
             </View>
             <Switch
               value={darkModeEnabled}
               onValueChange={setDarkModeEnabled}
               trackColor={{ false: "#767577", true: "#FFEEDD" }}
-              thumbColor={darkModeEnabled ? "#FF8C00" : "#f4f3f4"}
+              thumbColor={darkModeEnabled ? "#E23744" : "#f4f3f4"}
             />
           </View>
 
           <View style={styles.preferenceItem}>
             <View style={styles.preferenceInfo}>
-              <Ionicons name="language" size={20} color="#FF8C00" />
+              <Ionicons name="language" size={20} color="#E23744" />
               <Text style={styles.preferenceLabel}>Language</Text>
             </View>
             <Text style={styles.preferenceValue}>English</Text>
@@ -371,7 +371,7 @@ const ProfileScreen = ({ navigation }) => {
 
           <View style={styles.preferenceItem}>
             <View style={styles.preferenceInfo}>
-              <Ionicons name="time" size={20} color="#FF8C00" />
+              <Ionicons name="time" size={20} color="#E23744" />
               <Text style={styles.preferenceLabel}>Preferred Delivery Time</Text>
             </View>
             <Text style={styles.preferenceValue}>30-45 mins</Text>
@@ -388,7 +388,7 @@ const ProfileScreen = ({ navigation }) => {
         <Ionicons 
           name={expandedSections.account ? "chevron-up" : "chevron-down"} 
           size={20} 
-          color="#FF8C00" 
+          color="#E23744" 
         />
       </TouchableOpacity>
       
@@ -399,7 +399,7 @@ const ProfileScreen = ({ navigation }) => {
             onPress={() => openModal('password')}
           >
             <View style={styles.accountInfo}>
-              <Ionicons name="lock-closed" size={20} color="#FF8C00" />
+              <Ionicons name="lock-closed" size={20} color="#E23744" />
               <Text style={styles.accountLabel}>Change Password</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -413,7 +413,7 @@ const ProfileScreen = ({ navigation }) => {
                   <Ionicons 
                     name={method.type.toLowerCase() === 'visa' ? 'card' : 'wallet'} 
                     size={20} 
-                    color="#FF8C00" 
+                    color="#E23744" 
                   />
                   <Text style={styles.paymentMethodText}>
                     {method.type} •••• {method.last4}
@@ -444,7 +444,7 @@ const ProfileScreen = ({ navigation }) => {
               style={styles.addButton} 
               onPress={() => openModal('payment')}
             >
-              <Ionicons name="add" size={20} color="#FF8C00" />
+              <Ionicons name="add" size={20} color="#E23744" />
               <Text style={styles.addButtonText}>Add Payment Method</Text>
             </TouchableOpacity>
           </View>
@@ -462,7 +462,7 @@ const ProfileScreen = ({ navigation }) => {
                     style={styles.favoriteAction} 
                     onPress={() => handleRemoveFavorite(fav.id)}
                   >
-                    <Ionicons name="trash" size={18} color="#FF6347" />
+                    <Ionicons name="trash" size={18} color="#E23744" />
                   </TouchableOpacity>
                 </View>
               ))
@@ -473,7 +473,7 @@ const ProfileScreen = ({ navigation }) => {
 
           <TouchableOpacity style={styles.accountItem}>
             <View style={styles.accountInfo}>
-              <Ionicons name="time" size={20} color="#FF8C00" />
+              <Ionicons name="time" size={20} color="#E23744" />
               <Text style={styles.accountLabel}>Order History</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -481,7 +481,7 @@ const ProfileScreen = ({ navigation }) => {
 
           <TouchableOpacity style={styles.accountItem}>
             <View style={styles.accountInfo}>
-              <Ionicons name="help-circle" size={20} color="#FF8C00" />
+              <Ionicons name="help-circle" size={20} color="#E23744" />
               <Text style={styles.accountLabel}>Help & Support</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
     color: '#333',
     paddingVertical: 5,
     borderBottomWidth: 1,
-    borderBottomColor: '#FF8C00',
+    borderBottomColor: '#E23744',
   },
   preferenceItem: {
     flexDirection: 'row',
@@ -707,7 +707,7 @@ const styles = StyleSheet.create({
   defaultBadge: {
     fontSize: 12,
     color: '#fff',
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -720,7 +720,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   paymentMethodActionText: {
-    color: '#FF8C00',
+    color: '#E23744',
     fontSize: 14,
   },
   favoriteItem: {
@@ -754,7 +754,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   addButtonText: {
-    color: '#FF8C00',
+    color: '#E23744',
     fontSize: 15,
     marginLeft: 10,
     fontWeight: '500',
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   logoutButton: {
-    backgroundColor: '#FF6347',
+    backgroundColor: '#E23744',
     borderRadius: 10,
     padding: 15,
     marginHorizontal: 20,
@@ -813,7 +813,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   modalButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
     borderRadius: 8,
     padding: 15,
     alignItems: 'center',

@@ -55,11 +55,11 @@ const CartScreen = ({ navigation }) => {
       </View>
       <View style={styles.quantityControls}>
         <TouchableOpacity style={styles.quantityButton}>
-          <Ionicons name="remove" size={20} color="#FF8C00" />
+          <Ionicons name="remove" size={20} color="#E23744" />
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity style={styles.quantityButton}>
-          <Ionicons name="add" size={20} color="#FF8C00" />
+          <Ionicons name="add" size={20} color="#E23744" />
         </TouchableOpacity>
       </View>
     </View>
@@ -120,7 +120,7 @@ const CartScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('Checkout')}
       >
         <LinearGradient
-          colors={['#FF8C00', '#FF6347']}
+          colors={['#E23744', '#E23744']}
           style={styles.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF8C00',
+    color: '#E23744',
   },
   quantityControls: {
     flexDirection: 'row',
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF8C00',
+    color: '#E23744',
   },
   promoContainer: {
     flexDirection: 'row',
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   promoButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
     paddingHorizontal: 20,
     justifyContent: 'center',
   },

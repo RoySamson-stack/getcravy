@@ -86,9 +86,9 @@ export default HomeScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('1'); // Default to 'All'
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [locationName, setLocationName] = useState('Loading location...');
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   // Get user's location
   useEffect(() => {
@@ -114,7 +114,7 @@ export default HomeScreen = ({ navigation }) => {
         if (geocode.length > 0) {
           // Format the location name (you can customize this format)
           const address = geocode[0];
-          const locName = address.city || address.district || address.subregion;
+          const locName = address.city || address.district || address.subregion || 'Unknown location';
           setLocationName(locName);
         } else {
           setLocationName('Unknown location');
@@ -165,7 +165,7 @@ export default HomeScreen = ({ navigation }) => {
         <View style={styles.restaurantHeader}>
           <Text style={styles.restaurantName}>{item.name}</Text>
           <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16} color="#FFD700" />
+            <Ionicons name="star" size={16} color="#E23744" />
             <Text style={styles.rating}>{item.rating}</Text>
           </View>
         </View>
@@ -181,7 +181,7 @@ export default HomeScreen = ({ navigation }) => {
         <Ionicons 
           name={user?.favorites?.includes(item.id) ? "heart" : "heart-outline"} 
           size={24} 
-          color={user?.favorites?.includes(item.id) ? "#FF6347" : "#666"} 
+          color={user?.favorites?.includes(item.id) ? "#E23744" : "#666"} 
         />
       </TouchableOpacity>
     </TouchableOpacity>
@@ -198,7 +198,7 @@ export default HomeScreen = ({ navigation }) => {
       <Ionicons 
         name={item.icon} 
         size={22} 
-        color={selectedCategory === item.id ? "#fff" : "#FF8C00"} 
+        color={selectedCategory === item.id ? "#fff" : "#E23744"} 
       />
       <Text 
         style={[
@@ -217,16 +217,16 @@ export default HomeScreen = ({ navigation }) => {
         <View style={styles.userInfo}>
           <Text style={styles.greeting}>Hello, {user?.name}</Text>
           <Text style={styles.locationText}>
-            <Ionicons name="location" size={16} color="#666" /> {locationName}
+            <Ionicons name="location" size={16} color="#E23744" /> {locationName}
           </Text>
         </View>
         <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
-          <Ionicons name="person-circle-outline" size={36} color="#FF8C00" />
+          <Ionicons name="person-circle-outline" size={36} color="#E23744" />
         </TouchableOpacity>
       </View>
       
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <Ionicons name="search" size={20} color="#E23744" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search restaurants, dishes..."
@@ -234,7 +234,7 @@ export default HomeScreen = ({ navigation }) => {
           onChangeText={setSearchQuery}
         />
         <TouchableOpacity style={styles.filterButton}>
-          <Ionicons name="options-outline" size={20} color="#FF8C00" />
+          <Ionicons name="options-outline" size={20} color="#E23744" />
         </TouchableOpacity>
       </View>
       
@@ -251,7 +251,7 @@ export default HomeScreen = ({ navigation }) => {
       
       <View style={styles.promotionContainer}>
         <Image 
-          source={{ uri: 'https://via.placeholder.com/400x150/FF8C00/FFFFFF' }} 
+          source={{ uri: 'https://via.placeholder.com/400x150/E23744/FFFFFF' }} 
           style={styles.promotionImage}
         />
         <View style={styles.promotionContent}>
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
-    color: '#666',
+    color: '#E23744 ',
     marginTop: 2,
   },
   profileButton: {
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
   },
   selectedCategoryItem: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
   },
   categoryText: {
     marginLeft: 5,
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   promotionButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   },
   viewAllText: {
     fontSize: 14,
-    color: '#FF8C00',
+    color: '#E23744',
   },
   restaurantList: {
     paddingHorizontal: 20,

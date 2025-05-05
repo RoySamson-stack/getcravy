@@ -53,7 +53,7 @@ const LoginScreen = ({ navigation }) => {
         style={styles.container}
       >
         <LinearGradient
-          colors={['#FF8C00', '#FF6347']}
+          colors={['#E23744', '#E23744']}
           style={styles.container}
         >
           <View style={styles.logoContainer}>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   forgotPasswordText: {
-    color: '#FF8C00',
+    color: '#E23744',
     fontSize: 14,
   },
   signupContainer: {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   signupLink: {
-    color: '#FF8C00',
+    color: '#E23744',
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,

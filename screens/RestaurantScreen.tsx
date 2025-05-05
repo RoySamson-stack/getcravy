@@ -188,7 +188,7 @@ const RestaurantScreen = ({ route, navigation }) => {
           <Ionicons 
             name={user?.favorites?.includes(restaurant.id) ? "heart" : "heart-outline"} 
             size={28} 
-            color={user?.favorites?.includes(restaurant.id) ? "#FF6347" : "#fff"} 
+            color={user?.favorites?.includes(restaurant.id) ? "#E23744" : "#fff"} 
           />
         </TouchableOpacity>
       </View>
@@ -245,7 +245,7 @@ const RestaurantScreen = ({ route, navigation }) => {
       {activeTab === 'info' && (
         <View style={styles.infoContainer}>
           <View style={styles.infoSection}>
-            <Ionicons name="location-outline" size={24} color="#FF8C00" />
+            <Ionicons name="location-outline" size={24} color="#E23744" />
             <View style={styles.infoText}>
               <Text style={styles.infoTitle}>Address</Text>
               <Text style={styles.infoContent}>{restaurant.address}</Text>
@@ -253,7 +253,7 @@ const RestaurantScreen = ({ route, navigation }) => {
           </View>
           
           <View style={styles.infoSection}>
-            <Ionicons name="call-outline" size={24} color="#FF8C00" />
+            <Ionicons name="call-outline" size={24} color="#E23744" />
             <View style={styles.infoText}>
               <Text style={styles.infoTitle}>Phone</Text>
               <Text style={styles.infoContent}>{restaurant.phone}</Text>
@@ -261,7 +261,7 @@ const RestaurantScreen = ({ route, navigation }) => {
           </View>
           
           <View style={styles.infoSection}>
-            <Ionicons name="time-outline" size={24} color="#FF8C00" />
+            <Ionicons name="time-outline" size={24} color="#E23744" />
             <View style={styles.infoText}>
               <Text style={styles.infoTitle}>Hours</Text>
               <Text style={styles.infoContent}>{restaurant.hours}</Text>
@@ -269,7 +269,7 @@ const RestaurantScreen = ({ route, navigation }) => {
           </View>
           
           <View style={styles.infoSection}>
-            <Ionicons name="information-circle-outline" size={24} color="#FF8C00" />
+            <Ionicons name="information-circle-outline" size={24} color="#E23744" />
             <View style={styles.infoText}>
               <Text style={styles.infoTitle}>About</Text>
               <Text style={styles.infoContent}>{restaurant.description}</Text>
@@ -415,14 +415,14 @@ const RestaurantScreen = ({ route, navigation }) => {
                     style={styles.quantityButton}
                     onPress={() => setQuantity(Math.max(1, quantity - 1))}
                   >
-                    <Ionicons name="remove" size={20} color="#FF8C00" />
+                    <Ionicons name="remove" size={20} color="#E23744" />
                   </TouchableOpacity>
                   <Text style={styles.quantityText}>{quantity}</Text>
                   <TouchableOpacity 
                     style={styles.quantityButton}
                     onPress={() => setQuantity(quantity + 1)}
                   >
-                    <Ionicons name="add" size={20} color="#FF8C00" />
+                    <Ionicons name="add" size={20} color="#E23744" />
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.itemPrice}>Total: kes{(selectedItem.price * quantity).toFixed(2)}</Text>
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#FF8C00',
+    borderBottomColor: '#E23744',
   },
   tabText: {
     fontSize: 16,
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   activeTabText: {
-    color: '#FF8C00',
+    color: '#E23744',
   },
   menuContainer: {
     padding: 20,
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   menuItemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF8C00',
+    color: '#E23744',
   },
   menuItemRating: {
     flexDirection: 'row',
@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   addReviewButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
     borderRadius: 25,
     padding: 15,
     alignItems: 'center',
@@ -704,10 +704,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   reservationButton: {
-    backgroundColor: '#FF6347',
+    backgroundColor: '#E23744',
   },
   deliveryButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
   },
   actionButtonText: {
     color: '#fff',
@@ -767,7 +767,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   confirmButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#E23744',
   },
   cancelButtonText: {
     color: '#666',
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF8C00',
+    color: '#E23744',
   },
 });
 

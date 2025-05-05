@@ -13,7 +13,8 @@
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.20",
-    "expo": "^53.0.0",
+    "@types/react": "^19.0.0",
+    "expo": "^53.0.7",
     "expo-linear-gradient": "^14.1.4",
     "expo-location": "^18.1.4",
     "expo-status-bar": "^2.2.3",
@@ -21,17 +22,15 @@
     "metro": "^0.82.2",
     "metro-config": "^0.82.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "react-native": "^0.79.2",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-reanimated": "^2.14.4",
     "react-native-safe-area-context": "5.4.0",
-    "react-native-web": "~0.19.13"
+    "react-native-web": "^0.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@types/react": "~18.3.12",
     "typescript": "^5.3.3"
   },
   "private": true
