@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -10,22 +10,38 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AuthContext } from '../context/AuthContext';
+import { endpoints } from '../endpoints/endpoints';
 
-const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
+const SignupScreen = ({ navigation }) => {
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const { login } = useContext(AuthContext);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please fill in all fields');
+
+  const validateForm = () => {
+    
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
+    }
+    
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleSignup = async () => {
+    if (!validateForm()) {
       return;
     }
     
@@ -33,14 +49,34 @@ const LoginScreen = ({ navigation }) => {
     setError('');
     
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigation.navigate('Home');
+      // Call the signup endpoint
+      const response = await fetch(`${endpoints.baseUrl}${endpoints.signup}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          password,
+          phone
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        Alert.alert(
+          "Success",
+          "Account created successfully! Please login.",
+          [{ text: "OK", onPress: () => navigation.navigate('Login') }]
+        );
       } else {
-        setError('Invalid credentials. Try test@example.com / password');
+        // Handle API error response
+        setError(data.message || 'Signup failed. Please try again.');
       }
     } catch (e) {
-      setError('An error occurred. Please try again.');
+      console.error('Signup error:', e);
+      setError('An error occurred. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -62,20 +98,31 @@ const LoginScreen = ({ navigation }) => {
               style={styles.logo}
             />
             <Text style={styles.logoText}>GoEat</Text>
-            <Text style={styles.tagline}>Delicious Food, Delivered</Text>
+            <Text style={styles.tagline}>Create Your Account</Text>
           </View>
           
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>Full Name</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Email"
+                placeholder="Your Name"
                 placeholderTextColor="#A9A9A9"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Phone Number</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Phone Number"
+                placeholderTextColor="#A9A9A9"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
               />
             </View>
             
@@ -83,7 +130,7 @@ const LoginScreen = ({ navigation }) => {
               <Text style={styles.label}>Password</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Password (min 6 characters)"
                 placeholderTextColor="#A9A9A9"
                 value={password}
                 onChangeText={setPassword}
@@ -91,31 +138,36 @@ const LoginScreen = ({ navigation }) => {
               />
             </View>
             
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Confirm Password</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Confirm Password"
+                placeholderTextColor="#A9A9A9"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+              />
+            </View>
+            
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             
             <TouchableOpacity 
-              style={styles.loginButton}
-              onPress={handleLogin}
+              style={styles.signupButton}
+              onPress={handleSignup}
               disabled={isLoading}
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.loginButtonText}>Login</Text>
+                <Text style={styles.signupButtonText}>Create Account</Text>
               )}
             </TouchableOpacity>
             
-            <TouchableOpacity 
-              style={styles.forgotPassword}
-              onPress={() => {}}
-            >
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-            
-            <View style={styles.signupContainer}>
-              <Text style={styles.signupText}>Don't have an account?</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                <Text style={styles.signupLink}>Sign Up</Text>
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Already have an account?</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.loginLink}>Login</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -130,17 +182,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingTop: 40,
     alignItems: 'center',
   },
   logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   logoText: {
-    fontSize: 36,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#fff',
     marginTop: 10,
@@ -149,6 +200,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     marginTop: 5,
+    marginBottom: 20,
   },
   formContainer: {
     flex: 1,
@@ -159,7 +211,7 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   label: {
     fontSize: 14,
@@ -173,36 +225,28 @@ const styles = StyleSheet.create({
     padding: 15,
     fontSize: 16,
   },
-  loginButton: {
+  signupButton: {
     backgroundColor: '#E23744',
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
     marginTop: 10,
   },
-  loginButtonText: {
+  signupButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  forgotPassword: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  forgotPasswordText: {
-    color: '#E23744',
-    fontSize: 14,
-  },
-  signupContainer: {
+  loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 20,
   },
-  signupText: {
+  loginText: {
     color: '#333',
     fontSize: 14,
   },
-  signupLink: {
+  loginLink: {
     color: '#E23744',
     fontSize: 14,
     fontWeight: 'bold',
@@ -215,4 +259,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default SignupScreen;
