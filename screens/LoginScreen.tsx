@@ -14,8 +14,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthContext } from '../context/AuthContext';
+import { images } from '../constants/images';
+import { colors } from '../constants/colors';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +66,7 @@ const LoginScreen = ({ navigation }) => {
         >
           <View style={styles.logoContainer}>
             <Image
-              source={{ uri: 'https://via.placeholder.com/150' }}
+              source={images.logo}
               style={styles.logo}
             />
             <Text style={styles.logoText}>
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: '#E23744',
+    backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
@@ -198,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   forgotPasswordText: {
-    color: '#E23744',
+    color: colors.primary,
     fontSize: 14,
   },
   signupContainer: {
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   signupLink: {
-    color: '#E23744',
+    color: colors.primary,
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,

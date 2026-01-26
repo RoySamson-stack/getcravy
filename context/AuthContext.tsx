@@ -1,22 +1,49 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { User } from '../types/navigation';
+import { authAPI } from '../services/api';
 
-export const AuthContext = createContext();
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => void;
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const lastActivityRef = React.useRef<number>(Date.now());
 
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
       try {
-        const userData = await AsyncStorage.getItem('user');
-        if (userData) {
-          setUser(JSON.parse(userData));
+        const userData = await AsyncStorage.getItem('userData');
+        const token = await AsyncStorage.getItem('authToken');
+        
+        if (userData && token) {
+          // Verify token is still valid by getting current user
+          const result = await authAPI.getCurrentUser();
+          if (result.success && result.user) {
+            setUser(result.user);
+          } else {
+            // Token invalid, clear storage
+            await authAPI.logout();
+          }
         }
       } catch (e) {
         console.log('Error loading user data', e);
+        // Clear invalid data
+        await authAPI.logout();
       } finally {
         setLoading(false);
       }
@@ -25,52 +52,67 @@ export const AuthProvider = ({ children }) => {
     checkUser();
   }, []);
 
-  const login = async (email:any, password: any) => {
-    // This is a mock function - in a real app, you'd connect to an API
-    if (email === 'test@example.com' && password === 'password') {
-      const testUser = {
-        id: '1',
-        name: 'Test User',
-        email: 'test@example.com',
-        favorites: ['1', '3', '5']
-      };
-      await AsyncStorage.setItem('user', JSON.stringify(testUser));
-      setUser(testUser);
-      return true;
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const result = await authAPI.login(email, password);
+      if (result.success && result.user) {
+        setUser(result.user);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
-interface SignupUser {
-    id: string;
-    name: string;
-    email: string;
-    favorites: string[];
-}
+  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
+    try {
+      const result = await authAPI.register(name, email, password);
+      if (result.success && result.user) {
+        setUser(result.user);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Signup error:', error);
+      return false;
+    }
+  };
 
-const signup = async (name: string, email: string, password: string): Promise<boolean> => {
-    // Mock signup function
-    const newUser: SignupUser = {
-        id: Math.floor(Math.random() * 1000).toString(),
-        name,
-        email,
-        favorites: []
-    };
-    await AsyncStorage.setItem('user', JSON.stringify(newUser));
-    setUser(newUser);
-    return true;
-};
-
-  const logout = async () => {
-    await AsyncStorage.removeItem('user');
+  const logout = async (): Promise<void> => {
+    await authAPI.logout();
     setUser(null);
+    lastActivityRef.current = Date.now();
+  };
+
+  // Track user activity
+  const updateActivity = React.useCallback(() => {
+    lastActivityRef.current = Date.now();
+  }, []);
+
+  const updateUser = (userData: Partial<User>): void => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Custom hook to use auth context
+export const useAuth = (): AuthContextType => {
+  const context = React.useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
 

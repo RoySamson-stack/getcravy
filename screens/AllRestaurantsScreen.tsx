@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -7,9 +7,13 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
-  StatusBar
+  StatusBar,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { ThemeContext } from '../context/ThemeContext';
+import { restaurantAPI } from '../services/api';
+import { Restaurant } from '../types/navigation';
 
 // Additional restaurants that don't appear on the home page
 const additionalRestaurants = [
@@ -51,57 +55,84 @@ const additionalRestaurants = [
   },
 ];
 
+const neighborhoods = [
+  { id: 'all', name: 'All Areas' },
+  { id: 'Westlands', name: 'Westlands' },
+  { id: 'Kilimani', name: 'Kilimani' },
+  { id: 'CBD', name: 'CBD' },
+  { id: 'Karen', name: 'Karen' },
+  { id: 'Lavington', name: 'Lavington' },
+  { id: 'Parklands', name: 'Parklands' },
+];
+
 const AllRestaurantsScreen = ({ navigation, route }) => {
+  const theme = useContext(ThemeContext);
+  if (!theme) throw new Error('ThemeContext must be used within ThemeProvider');
+  const { colors } = theme;
+  
   const [searchQuery, setSearchQuery] = useState('');
-  const [allRestaurants, setAllRestaurants] = useState<{ 
-    id: string; 
-    name: string; 
-    image: any; 
-    rating: number; 
-    category: string; 
-    deliveryTime: string; 
-    price: string; 
-  }[]>([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState<{ 
-    id: string; 
-    name: string; 
-    image: any; 
-    rating: number; 
-    category: string; 
-    deliveryTime: string; 
-    price: string; 
-  }[]>([]);
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState('all');
+  const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Combined restaurants when component mounts
+  // Fetch restaurants from API
   useEffect(() => {
-    // Get restaurants passed from HomeScreen (or use empty array if not provided)
-    const homeRestaurants = route.params?.homeRestaurants || [];
-    
-    // Combine with additional restaurants
-    const combined = [...homeRestaurants, ...additionalRestaurants];
-    
-    // Remove duplicates based on id
-    const uniqueRestaurants = Array.from(
-      new Map(combined.map(item => [item.id, item])).values()
-    );
-    
-    setAllRestaurants(uniqueRestaurants);
-    setFilteredRestaurants(uniqueRestaurants);
-  }, [route.params?.homeRestaurants]);
+    const fetchRestaurants = async () => {
+      try {
+        setLoading(true);
+        const result = await restaurantAPI.getAll({ limit: 100 });
+        if (result.success && result.restaurants) {
+          const mapped = result.restaurants.map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            image: r.images && r.images.length > 0 ? { uri: r.images[0] } : require('../assets/food.png'),
+            rating: parseFloat(r.rating) || 0,
+            category: r.category,
+            deliveryTime: r.deliveryTime || '20-30 min',
+            price: r.priceRange || 'Ksh',
+            neighborhood: r.neighborhood,
+          }));
+          setAllRestaurants(mapped);
+          setFilteredRestaurants(mapped);
+        } else {
+          // Fallback to route params
+          const homeRestaurants = route.params?.homeRestaurants || [];
+          setAllRestaurants(homeRestaurants);
+          setFilteredRestaurants(homeRestaurants);
+        }
+      } catch (err) {
+        console.error('Error fetching restaurants:', err);
+        const homeRestaurants = route.params?.homeRestaurants || [];
+        setAllRestaurants(homeRestaurants);
+        setFilteredRestaurants(homeRestaurants);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRestaurants();
+  }, []);
 
-  // Filter restaurants based on search query
+  // Filter restaurants based on search query and neighborhood
   useEffect(() => {
-    if (searchQuery === '') {
-      setFilteredRestaurants(allRestaurants);
-    } else {
-      setFilteredRestaurants(
-        allRestaurants.filter(restaurant => 
-          restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          restaurant.category.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+    let filtered = [...allRestaurants];
+    
+    // Filter by neighborhood
+    if (selectedNeighborhood !== 'all') {
+      filtered = filtered.filter(r => r.neighborhood === selectedNeighborhood);
+    }
+    
+    // Filter by search query
+    if (searchQuery !== '') {
+      filtered = filtered.filter(restaurant => 
+        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        restaurant.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (restaurant.neighborhood && restaurant.neighborhood.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
-  }, [searchQuery, allRestaurants]);
+    
+    setFilteredRestaurants(filtered);
+  }, [searchQuery, selectedNeighborhood, allRestaurants]);
 
   const renderRestaurantItem = ({ item }) => (
     <TouchableOpacity 
@@ -151,7 +182,7 @@ const AllRestaurantsScreen = ({ navigation, route }) => {
         <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search restaurants or cuisines..."
+          placeholder="Search restaurants, cuisines, or areas..."
           placeholderTextColor="#999"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -165,8 +196,46 @@ const AllRestaurantsScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* Neighborhood Filters */}
+      <View style={styles.neighborhoodContainer}>
+        <FlatList
+          data={neighborhoods}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.neighborhoodChip,
+                {
+                  backgroundColor: selectedNeighborhood === item.id ? colors.primary : colors.cardBackground,
+                },
+              ]}
+              onPress={() => setSelectedNeighborhood(item.id)}
+            >
+              <Text
+                style={[
+                  styles.neighborhoodChipText,
+                  { color: selectedNeighborhood === item.id ? '#FFFFFF' : colors.text },
+                ]}
+              >
+                {item.name}
+              </Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.neighborhoodList}
+          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+        />
+      </View>
       
-      <FlatList
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading restaurants...</Text>
+        </View>
+      ) : (
+        <FlatList
         data={filteredRestaurants}
         renderItem={renderRestaurantItem}
         keyExtractor={item => item.id}
@@ -176,10 +245,11 @@ const AllRestaurantsScreen = ({ navigation, route }) => {
           <View style={styles.emptyContainer}>
             <Ionicons name="search-outline" size={50} color="#999" />
             <Text style={styles.emptyText}>No restaurants found</Text>
-            <Text style={styles.emptySubtext}>Try a different search term</Text>
+            <Text style={styles.emptySubtext}>Try a different search term or area</Text>
           </View>
         }
       />
+      )}
     </View>
   );
 };
@@ -298,6 +368,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
     marginTop: 5,
+  },
+  neighborhoodContainer: {
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  neighborhoodList: {
+    paddingHorizontal: 20,
+  },
+  neighborhoodChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  neighborhoodChipText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
   },
 });
 

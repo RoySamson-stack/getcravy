@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "GoEat",
-    "slug": "GoEat",
+    "slug": "goeat",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,29 +10,43 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#E23744"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.goeat.app",
+      "buildNumber": "1",
       "infoPlist": {
-    "NSLocationWhenInUseUsageDescription": "This app needs to access your location to show nearby restaurants"
-  }
+        "NSLocationWhenInUseUsageDescription": "This app needs to access your location to show nearby restaurants",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs to access your location to show nearby restaurants"
+      }
     },
     "android": {
+      "package": "com.goeat.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
-
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "INTERNET"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-      "expo": {
-        "developer": {
-          "urlType": "lan"
-        }
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
       }
+    },
+    "plugins": [
+      "expo-location"
+    ]
   }
 }

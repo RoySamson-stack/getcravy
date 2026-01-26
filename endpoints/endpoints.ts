@@ -1,5 +1,18 @@
+// Get base URL from environment or use default
+// For development, use localhost
+// For physical device testing, use your computer's IP address
+// In production, use your production API URL
+const getBaseUrl = () => {
+  // Check if we have an environment variable
+  if (process.env.API_BASE_URL) {
+    return process.env.API_BASE_URL;
+  }
+  // Default to localhost for development
+  return 'http://localhost:5000/api/';
+};
+
 export const endpoints = {
-    baseUrl: 'http://192.168.250.52:5000/api/', 
+    baseUrl: getBaseUrl(), 
     
     // Authentication endpoints
     login: `auth/login`,

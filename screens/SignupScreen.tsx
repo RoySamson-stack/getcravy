@@ -15,8 +15,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { endpoints } from '../endpoints/endpoints';
+import { images } from '../constants/images';
+import { colors } from '../constants/colors';
 
-const SignupScreen = ({ navigation }) => {
+const SignupScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -94,7 +96,7 @@ const SignupScreen = ({ navigation }) => {
         >
           <View style={styles.logoContainer}>
             <Image
-              source={{ uri: 'https://via.placeholder.com/150' }}
+              source={images.logo}
               style={styles.logo}
             />
             <Text style={styles.logoText}>GoEat</Text>
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   signupButton: {
-    backgroundColor: '#E23744',
+    backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
@@ -247,7 +249,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginLink: {
-    color: '#E23744',
+    color: colors.primary,
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,

@@ -15,9 +15,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 
-const ProfileScreen = ({ navigation }) => {
-  const { user, logout, updateUser } = useContext(AuthContext);
+const ProfileScreen = ({ navigation }: any) => {
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    throw new Error('AuthContext must be used within an AuthProvider');
+  }
+  const { user, logout, updateUser } = authContext;
+  const theme = useContext(ThemeContext);
+  if (!theme) throw new Error('ThemeContext must be used within ThemeProvider');
+  const { colors, isDark, toggleTheme, setMode } = theme;
+  const styles = createStyles(colors);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -26,7 +35,6 @@ const ProfileScreen = ({ navigation }) => {
     address: user?.address || ''
   });
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     personalInfo: true,
     preferences: false,
@@ -201,9 +209,9 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
       <LinearGradient
-        colors={['#E23744', '#E23744']}
+        colors={[colors.primary, colors.primaryDark]}
         style={styles.header}
       >
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -350,14 +358,14 @@ const ProfileScreen = ({ navigation }) => {
 
           <View style={styles.preferenceItem}>
             <View style={styles.preferenceInfo}>
-              <Ionicons name="moon" size={20} color="#E23744" />
-              <Text style={styles.preferenceLabel}>Dark Mode</Text>
+              <Ionicons name="moon" size={20} color={colors.primary} />
+              <Text style={[styles.preferenceLabel, { color: colors.text }]}>Dark Mode</Text>
             </View>
             <Switch
-              value={darkModeEnabled}
-              onValueChange={setDarkModeEnabled}
-              trackColor={{ false: "#767577", true: "#FFEEDD" }}
-              thumbColor={darkModeEnabled ? "#E23744" : "#f4f3f4"}
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ false: "#767577", true: colors.primaryLight }}
+              thumbColor={isDark ? colors.primary : "#f4f3f4"}
             />
           </View>
 
@@ -514,10 +522,10 @@ const ProfileScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: colors.background,
   },
   contentContainer: {
     paddingBottom: 30,
