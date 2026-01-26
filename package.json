@@ -43,7 +43,7 @@
     "react-native-worklets-core": "^1.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
+    "@babel/core": "^7.28.6",
     "typescript": "~5.9.2"
   },
   "private": true
