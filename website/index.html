@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoEat - Restaurant & Events Discovery Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #2C2C2C; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background: linear-gradient(135deg, #E23744 0%, #C02E3A 100%); color: white; padding: 3rem 0; text-align: center; }
+        h1 { font-size: 3.5rem; margin-bottom: 1rem; font-weight: 700; }
+        .subtitle { font-size: 1.3rem; opacity: 0.95; max-width: 600px; margin: 0 auto; }
+        .hero { padding: 4rem 0; text-align: center; background: #F8F8F8; }
+        .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; color: #2C2C2C; }
+        .hero p { font-size: 1.2rem; color: #666666; max-width: 700px; margin: 0 auto; }
+        .app-showcase { padding: 4rem 0; background: white; text-align: center; }
+        .app-showcase h2 { font-size: 2.2rem; margin-bottom: 3rem; color: #2C2C2C; }
+        .phone-mockups { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem; }
+        .phone-mockup { width: 250px; height: 500px; background: #2C2C2C; border-radius: 25px; padding: 20px; position: relative; }
+        .phone-screen { width: 100%; height: 100%; background: linear-gradient(135deg, #E23744 0%, #FFB800 100%); border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .screen-content { text-align: center; }
+        .screen-content h3 { font-size: 1.2rem; margin-bottom: 1rem; }
+        .screen-content p { font-size: 0.9rem; opacity: 0.9; }
+        .download-section { background: #F8F8F8; padding: 4rem 0; text-align: center; }
+        .download-section h2 { font-size: 2.2rem; margin-bottom: 1rem; color: #2C2C2C; }
+        .download-btn { display: inline-block; background: #E23744; color: white; padding: 1.2rem 2.5rem; text-decoration: none; border-radius: 8px; font-size: 1.2rem; font-weight: 600; margin: 1.5rem; transition: all 0.3s; box-shadow: 0 4px 15px rgba(226, 55, 68, 0.3); }
+        .download-btn:hover { background: #C02E3A; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(226, 55, 68, 0.4); }
+        .download-info { margin-top: 1.5rem; color: #666666; font-size: 0.95rem; }
+        .features { padding: 4rem 0; background: white; }
+        .features h2 { text-align: center; margin-bottom: 3rem; font-size: 2.2rem; color: #2C2C2C; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .feature { background: #F8F8F8; padding: 2.5rem; border-radius: 12px; border-left: 4px solid #E23744; transition: transform 0.3s; }
+        .feature:hover { transform: translateY(-5px); }
+        .feature h3 { font-size: 1.4rem; margin-bottom: 1rem; color: #2C2C2C; }
+        .feature p { color: #666666; font-size: 1rem; }
+        .about { padding: 4rem 0; background: #F8F8F8; }
+        .about h2 { text-align: center; margin-bottom: 2rem; font-size: 2.2rem; color: #2C2C2C; }
+        .about-content { max-width: 800px; margin: 0 auto; text-align: center; }
+        .about p { font-size: 1.1rem; color: #666666; margin-bottom: 1.5rem; }
+        footer { background: #2C2C2C; color: white; text-align: center; padding: 3rem 0; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: left; margin-bottom: 2rem; }
+        .footer-section h3 { margin-bottom: 1rem; color: #E23744; }
+        .footer-section p, .footer-section a { color: #999999; text-decoration: none; }
+        .footer-section a:hover { color: #E23744; }
+        .footer-bottom { border-top: 1px solid #666666; padding-top: 2rem; text-align: center; }
+        @media (max-width: 768px) {
+            .phone-mockups { flex-direction: column; align-items: center; }
+            h1 { font-size: 2.5rem; }
+            .hero h2 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>GoEat</h1>
+            <p class="subtitle">Stop scrolling Instagram for hours. Find the best restaurants and food events in Nairobi—all in one place.</p>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h2>Discover Restaurants & Food Events</h2>
+            <p>Events-first discovery with vibe-based browsing, real-time information, and direct restaurant contact. Built for Nairobians who want to discover the best food experiences in their city.</p>
+        </div>
+    </section>
+
+    <section class="app-showcase">
+        <div class="container">
+            <h2>See GoEat in Action</h2>
+            <div class="phone-mockups">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="screen-content">
+                            <h3>Discover Events</h3>
+                            <p>Find food events happening today and this weekend</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="screen-content">
+                            <h3>Browse Restaurants</h3>
+                            <p>Explore by vibe, cuisine, and location</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="screen-content">
+                            <h3>Direct Contact</h3>
+                            <p>Call and WhatsApp restaurants instantly</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="download-section">
+        <div class="container">
+            <h2>Download GoEat</h2>
+            <p>Get the app and start discovering amazing food experiences in Nairobi</p>
+            <a href="/downloads/goeat.apk" class="download-btn" download>Download Android APK</a>
+            <div class="download-info">
+                <p>Android 6.0+ required • Version 1.0.0 • 25MB</p>
+                <p>Enable "Install from unknown sources" in your Android settings</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature">
+                    <h3>Events Discovery</h3>
+                    <p>Find food events happening today and this weekend. Never miss out on pop-ups, food festivals, and special dining experiences.</p>
+                </div>
+                <div class="feature">
+                    <h3>Restaurant Discovery</h3>
+                    <p>Browse restaurants by vibe, cuisine, and location. Discover hidden gems and popular spots tailored to your preferences.</p>
+                </div>
+                <div class="feature">
+                    <h3>Location-Based Search</h3>
+                    <p>Discover nearby restaurants and events using GPS. Find great food wherever you are in Nairobi.</p>
+                </div>
+                <div class="feature">
+                    <h3>Vibe-Based Browsing</h3>
+                    <p>Browse by mood: Party, Date Night, Casual, Fine Dining, Family, Brunch. Find the perfect spot for any occasion.</p>
+                </div>
+                <div class="feature">
+                    <h3>Direct Contact</h3>
+                    <p>Call and WhatsApp restaurants directly from the app. Make reservations and inquiries with ease.</p>
+                </div>
+                <div class="feature">
+                    <h3>Deals & Specials</h3>
+                    <p>View today's deals and happy hours. Save money while discovering new places to eat.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="container">
+            <h2>About GoEat</h2>
+            <div class="about-content">
+                <p>GoEat is a mobile platform designed specifically for Nairobians who want to discover the best restaurants and food events in their city. We understand that finding great food experiences shouldn't require endless scrolling through social media.</p>
+                <p>Our platform combines real-time event information, comprehensive restaurant listings, and intuitive search features to help you discover your next favorite meal or food experience.</p>
+                <p>Built with React Native and powered by a robust backend, GoEat delivers a smooth, fast, and reliable experience for food discovery in Nairobi.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>GoEat</h3>
+                    <p>Restaurant & Events Discovery Platform for Nairobi</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <p>Email: support@goeat.com</p>
+                    <p>For technical issues and feedback</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <a href="/privacy">Privacy Policy</a><br>
+                    <a href="/terms">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GoEat. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
