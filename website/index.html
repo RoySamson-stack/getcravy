@@ -20,38 +20,50 @@
         .phone-mockup { width: 280px; height: 560px; background: #2C2C2C; border-radius: 30px; padding: 15px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .phone-screen { width: 100%; height: 100%; background: #F8F8F8; border-radius: 20px; overflow: hidden; position: relative; }
         
-        /* Home Screen Mockup */
-        .home-screen { padding: 20px 16px; }
+        /* Home Screen - Accurate to real app */
+        .home-screen { padding: 20px 20px 0 20px; }
         .home-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .home-greeting { font-size: 18px; font-weight: bold; color: #2C2C2C; margin-bottom: 4px; }
-        .home-location { font-size: 12px; color: #666666; }
+        .home-greeting { font-size: 20px; font-weight: bold; color: #2C2C2C; margin-bottom: 4px; }
+        .home-location { font-size: 14px; color: #666666; display: flex; align-items: center; gap: 4px; }
         .home-icons { display: flex; gap: 12px; align-items: center; }
+        .icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
         .search-bar { background: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .search-text { color: #999999; font-size: 14px; }
-        .section-title { font-size: 18px; font-weight: bold; color: #2C2C2C; margin-bottom: 12px; }
-        .event-card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .event-title { font-size: 14px; font-weight: 600; color: #2C2C2C; margin-bottom: 4px; }
-        .event-date { font-size: 12px; color: #E23744; margin-bottom: 8px; }
-        .event-location { font-size: 12px; color: #666666; }
+        .search-text { color: #999999; font-size: 16px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-title { font-size: 20px; font-weight: bold; color: #2C2C2C; }
+        .view-all { font-size: 14px; font-weight: 600; color: #E23744; }
+        .event-card { background: white; border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 200px; }
+        .event-image { width: 100%; height: 120px; background: rgba(226, 55, 68, 0.2); display: flex; align-items: center; justify-content: center; color: #E23744; font-size: 24px; }
+        .event-content { padding: 12px; }
+        .event-title { font-size: 16px; font-weight: 600; color: #2C2C2C; margin-bottom: 4px; }
+        .event-date { font-size: 12px; color: #666666; margin-bottom: 8px; }
+        .event-footer { display: flex; justify-content: space-between; align-items: center; }
+        .event-location { font-size: 12px; color: #666666; flex: 1; }
+        .event-price { font-size: 14px; font-weight: 600; color: #E23744; }
         
-        /* Events Screen Mockup */
-        .events-screen { padding: 20px 16px; }
-        .events-header { text-align: center; margin-bottom: 20px; }
-        .events-title { font-size: 24px; font-weight: bold; color: #2C2C2C; margin-bottom: 8px; }
-        .events-subtitle { font-size: 14px; color: #666666; }
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; }
-        .filter-tab { background: #E23744; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; white-space: nowrap; }
+        /* Events Screen - Accurate to real app */
+        .events-screen { padding: 20px; }
+        .events-header { margin-bottom: 20px; }
+        .events-title { font-size: 24px; font-weight: bold; color: #2C2C2C; margin-bottom: 8px; text-align: center; }
+        .events-subtitle { font-size: 14px; color: #666666; text-align: center; }
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-tab { background: #E23744; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; white-space: nowrap; font-weight: 500; }
         .filter-tab.inactive { background: #EEEEEE; color: #666666; }
+        .events-list { display: flex; flex-direction: column; gap: 12px; }
         
-        /* Restaurant Screen Mockup */
-        .restaurant-screen { padding: 20px 16px; }
-        .restaurant-header { text-align: center; margin-bottom: 20px; }
-        .restaurant-image { width: 100%; height: 120px; background: linear-gradient(135deg, #E23744 20%, #FFB800 80%); border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
-        .restaurant-name { font-size: 18px; font-weight: bold; color: #2C2C2C; margin-bottom: 4px; }
-        .restaurant-category { font-size: 12px; color: #666666; margin-bottom: 8px; }
-        .restaurant-rating { font-size: 12px; color: #FFB800; margin-bottom: 12px; }
-        .vibe-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-        .vibe-tag { background: #E23744; color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; }
+        /* Restaurant Screen - Accurate to real app */
+        .restaurant-screen { padding: 20px; }
+        .restaurant-image { width: 100%; height: 120px; background: #f0f0f0; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: #E23744; font-size: 30px; }
+        .restaurant-name { font-size: 18px; font-weight: bold; color: #2C2C2C; margin-bottom: 4px; text-align: center; }
+        .restaurant-category { font-size: 12px; color: #666666; margin-bottom: 4px; text-align: center; }
+        .restaurant-rating { font-size: 12px; color: #FFB800; margin-bottom: 12px; text-align: center; }
+        .restaurant-details { margin-bottom: 16px; }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; }
+        .detail-label { color: #666666; }
+        .detail-value { color: #2C2C2C; font-weight: 500; }
+        .action-buttons { display: flex; gap: 8px; margin-top: 16px; }
+        .action-btn { flex: 1; background: #E23744; color: white; padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 14px; }
+        .action-btn.secondary { background: #EEEEEE; color: #2C2C2C; }
         .download-section { background: #F8F8F8; padding: 4rem 0; text-align: center; }
         .download-section h2 { font-size: 2.2rem; margin-bottom: 1rem; color: #2C2C2C; }
         .download-btn { display: inline-block; background: #E23744; color: white; padding: 1.2rem 2.5rem; text-decoration: none; border-radius: 8px; font-size: 1.2rem; font-weight: 600; margin: 1.5rem; transition: all 0.3s; box-shadow: 0 4px 15px rgba(226, 55, 68, 0.3); }
@@ -105,28 +117,45 @@
                         <div class="home-screen">
                             <div class="home-header">
                                 <div>
-                                    <div class="home-greeting">Hello, Sarah</div>
-                                    <div class="home-location">📍 Westlands, Nairobi</div>
+                                    <div class="home-greeting">Hello, Guest</div>
+                                    <div class="home-location">📍 Nairobi</div>
                                 </div>
                                 <div class="home-icons">
-                                    <span style="color: #E23744;">📅</span>
-                                    <span style="color: #E23744;">👤</span>
+                                    <div class="icon-btn">📅</div>
+                                    <div class="icon-btn">👤</div>
                                 </div>
                             </div>
                             <div class="search-bar">
-                                <span style="color: #999999;">🔍</span>
+                                <span>🔍</span>
                                 <span class="search-text">Search restaurants, events...</span>
                             </div>
-                            <div class="section-title">Featured Events</div>
-                            <div class="event-card">
-                                <div class="event-title">Rooftop Food Festival</div>
-                                <div class="event-date">Today, 6:00 PM</div>
-                                <div class="event-location">📍 Skybar, Westlands</div>
+                            <div class="section-header">
+                                <div class="section-title">Featured Events</div>
+                                <div class="view-all">View All</div>
                             </div>
-                            <div class="event-card">
-                                <div class="event-title">Wine & Dine Night</div>
-                                <div class="event-date">Tomorrow, 7:30 PM</div>
-                                <div class="event-location">📍 Villa Rosa Kempinski</div>
+                            <div style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px;">
+                                <div class="event-card">
+                                    <div class="event-image">📅</div>
+                                    <div class="event-content">
+                                        <div class="event-title">Food Festival</div>
+                                        <div class="event-date">Dec 15 • 6:00 PM</div>
+                                        <div class="event-footer">
+                                            <div class="event-location">📍 Uhuru Park</div>
+                                            <div class="event-price">Free</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="event-card">
+                                    <div class="event-image">📅</div>
+                                    <div class="event-content">
+                                        <div class="event-title">Wine Night</div>
+                                        <div class="event-date">Dec 16 • 7:30 PM</div>
+                                        <div class="event-footer">
+                                            <div class="event-location">📍 Villa Rosa</div>
+                                            <div class="event-price">KES 2500</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -139,25 +168,34 @@
                                 <div class="events-subtitle">Discover food events happening now</div>
                             </div>
                             <div class="filter-tabs">
-                                <div class="filter-tab">Today</div>
-                                <div class="filter-tab inactive">Tomorrow</div>
-                                <div class="filter-tab inactive">Weekend</div>
-                                <div class="filter-tab inactive">All</div>
+                                <div class="filter-tab">All Events</div>
+                                <div class="filter-tab inactive">This Week</div>
+                                <div class="filter-tab inactive">Festivals</div>
+                                <div class="filter-tab inactive">Live Music</div>
                             </div>
-                            <div class="event-card">
-                                <div class="event-title">Street Food Carnival</div>
-                                <div class="event-date">Today, 5:00 PM - 11:00 PM</div>
-                                <div class="event-location">📍 Uhuru Park</div>
-                            </div>
-                            <div class="event-card">
-                                <div class="event-title">Brunch & Beats</div>
-                                <div class="event-date">Today, 11:00 AM - 4:00 PM</div>
-                                <div class="event-location">📍 The Alchemist</div>
-                            </div>
-                            <div class="event-card">
-                                <div class="event-title">Pizza Night Special</div>
-                                <div class="event-date">Today, 6:00 PM - 10:00 PM</div>
-                                <div class="event-location">📍 Java House</div>
+                            <div class="events-list">
+                                <div class="event-card" style="width: 100%;">
+                                    <div class="event-image">📅</div>
+                                    <div class="event-content">
+                                        <div class="event-title">Street Food Carnival</div>
+                                        <div class="event-date">Today • 5:00 PM - 11:00 PM</div>
+                                        <div class="event-footer">
+                                            <div class="event-location">📍 Uhuru Park</div>
+                                            <div class="event-price">Free</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="event-card" style="width: 100%;">
+                                    <div class="event-image">📅</div>
+                                    <div class="event-content">
+                                        <div class="event-title">Brunch & Beats</div>
+                                        <div class="event-date">Tomorrow • 11:00 AM - 4:00 PM</div>
+                                        <div class="event-footer">
+                                            <div class="event-location">📍 The Alchemist</div>
+                                            <div class="event-price">KES 1500</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,27 +203,35 @@
                 <div class="phone-mockup">
                     <div class="phone-screen">
                         <div class="restaurant-screen">
-                            <div class="restaurant-header">
-                                <div class="restaurant-image">🍽️ Restaurant Photo</div>
-                                <div class="restaurant-name">Carnivore Restaurant</div>
-                                <div class="restaurant-category">Kenyan • Grill • Fine Dining</div>
-                                <div class="restaurant-rating">⭐ 4.8 (324 reviews)</div>
-                                <div class="vibe-tags">
-                                    <span class="vibe-tag">Fine Dining</span>
-                                    <span class="vibe-tag">Date Night</span>
-                                    <span class="vibe-tag">Family</span>
+                            <div class="restaurant-image">🍽️</div>
+                            <div class="restaurant-name">Carnivore Restaurant</div>
+                            <div class="restaurant-category">Kenyan • Grill</div>
+                            <div class="restaurant-rating">⭐ 4.8 (324 reviews)</div>
+                            <div class="restaurant-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Delivery Time:</span>
+                                    <span class="detail-value">20-30 min</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Price Range:</span>
+                                    <span class="detail-value">KES 1000-3000</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Status:</span>
+                                    <span class="detail-value" style="color: #4CAF50;">Open Now</span>
                                 </div>
                             </div>
-                            <div style="margin-top: 20px;">
-                                <div class="section-title">Today's Specials</div>
-                                <div class="event-card">
+                            <div class="section-title" style="font-size: 16px; margin-bottom: 8px;">Today's Special</div>
+                            <div class="event-card" style="width: 100%; margin-bottom: 16px;">
+                                <div class="event-content">
                                     <div class="event-title">Nyama Choma Platter</div>
-                                    <div class="event-date">20% OFF - Until 9:00 PM</div>
+                                    <div class="event-date" style="color: #E23744;">20% OFF - Until 9:00 PM</div>
                                     <div class="event-location">KES 2,400 → KES 1,920</div>
                                 </div>
                             </div>
-                            <div style="background: #E23744; color: white; padding: 12px; border-radius: 8px; text-align: center; margin-top: 16px; font-weight: 600;">
-                                📞 Call Restaurant
+                            <div class="action-buttons">
+                                <div class="action-btn">📞 Call</div>
+                                <div class="action-btn secondary">💬 WhatsApp</div>
                             </div>
                         </div>
                     </div>
