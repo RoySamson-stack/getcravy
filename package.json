@@ -31,7 +31,7 @@
     "expo-vector-icons": "^10.0.1",
     "expo-video": "^3.0.15",
     "metro": "^0.83.1",
-    "metro-config": "^0.82.2",
+    "metro-config": "^0.83.3",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-elements": "^3.4.3",
