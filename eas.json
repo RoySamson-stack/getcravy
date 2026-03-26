@@ -1,49 +1,19 @@
 {
   "cli": {
-    "version": ">= 5.0.0"
+    "appVersionSource": "remote"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
     "preview": {
-      "distribution": "internal",
+      "node": "20.19.4",
       "android": {
         "buildType": "apk"
-      },
-      "ios": {
-        "simulator": true
       }
     },
     "production": {
+      "node": "20.19.4",
       "android": {
-        "buildType": "app-bundle"
-      },
-      "ios": {
-        "bundleIdentifier": "com.goeat.app"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "android": {
-        "serviceAccountKeyPath": "./service-account-key.json",
-        "track": "internal"
-      },
-      "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "your-apple-team-id"
+        "buildType": "apk"
       }
     }
   }
 }
-
-
-
-
-
-
-
-

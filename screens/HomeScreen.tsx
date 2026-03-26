@@ -8,7 +8,8 @@ import {
   FlatList,
   TextInput,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
@@ -18,6 +19,7 @@ import { eventAPI, Event } from '../services/eventAPI';
 import { dealAPI, Deal } from '../services/dealAPI';
 import { restaurantAPI } from '../services/api';
 import { Restaurant } from '../types/navigation';
+import { dummyCarMeets } from '../constants/dummyData';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -326,6 +328,48 @@ const HomeScreen = ({ navigation }: any) => {
         </View>
       )}
 
+      {/* Car Meets */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Car Meets</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('CarMeets')}>
+            <Text style={[styles.viewAll, { color: colors.primary }]}>View All</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          data={dummyCarMeets.slice(0, 3)}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.carMeetCard, { backgroundColor: colors.cardBackground }]}
+              onPress={() => navigation.navigate('CarMeetDetail', { meetId: item.id })}
+            >
+              <Image source={item.image} style={styles.carMeetImage} />
+              <View style={styles.carMeetContent}>
+                <Text style={[styles.carMeetTitle, { color: colors.text }]} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.carMeetDate, { color: colors.textLight }]}>
+                  {new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </Text>
+                <View style={styles.carMeetFooter}>
+                  <Text style={[styles.carMeetLocation, { color: colors.textLight }]} numberOfLines={1}>
+                    <Ionicons name="location" size={12} /> {item.location}
+                  </Text>
+                  <Text style={[styles.carMeetPrice, { color: item.entryFee === 0 ? colors.success : colors.primary }]}>
+                    {item.entryFee === 0 ? 'Free' : `KES ${item.entryFee}`}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalList}
+          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+        />
+      </View>
+
       {/* Featured Restaurants */}
       {featuredRestaurants.length > 0 && (
         <View style={styles.section}>
@@ -520,6 +564,45 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
+  },
+  carMeetCard: {
+    width: 200,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  carMeetImage: {
+    width: '100%',
+    height: 120,
+  },
+  carMeetContent: {
+    padding: 12,
+  },
+  carMeetTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  carMeetDate: {
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  carMeetFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  carMeetLocation: {
+    fontSize: 11,
+    flex: 1,
+  },
+  carMeetPrice: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 

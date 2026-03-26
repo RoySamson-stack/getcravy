@@ -1,5 +1,69 @@
-import { Restaurant, MenuItem, Review } from '../types/navigation';
+import { Restaurant, MenuItem, Review, CarMeet } from '../types/navigation';
 import { placeholderImages } from './images';
+
+// Dummy car meets data
+export const dummyCarMeets: CarMeet[] = [
+  {
+    id: '1',
+    title: 'Nairobi Sunday Cars & Coffee',
+    location: 'Village Market Parking',
+    address: 'Village Market, Gigiri, Nairobi',
+    date: '2026-02-02T08:00:00Z',
+    endDate: '2026-02-02T12:00:00Z',
+    description: 'Weekly gathering of car enthusiasts. Bring your ride and enjoy coffee with fellow petrolheads.',
+    image: placeholderImages.restaurant,
+    organizer: 'Nairobi Car Club',
+    attendees: 45,
+    maxAttendees: 100,
+    carTypes: ['JDM', 'European', 'American Muscle', 'Classic'],
+    foodAvailable: true,
+    foodVendors: ['Java House', 'Artcaffe'],
+    entryFee: 0,
+    phone: '+254 722 000 001',
+    whatsapp: '+254 722 000 001',
+    tags: ['weekly', 'family-friendly', 'coffee']
+  },
+  {
+    id: '2',
+    title: 'JDM Night Meet',
+    location: 'Carnivore Grounds',
+    address: 'Carnivore Restaurant, Langata Road',
+    date: '2026-02-07T19:00:00Z',
+    endDate: '2026-02-07T23:00:00Z',
+    description: 'Japanese car enthusiasts unite! Show off your JDM builds and enjoy great food.',
+    image: placeholderImages.restaurant,
+    organizer: 'JDM Kenya',
+    attendees: 78,
+    maxAttendees: 150,
+    carTypes: ['JDM', 'Tuner'],
+    foodAvailable: true,
+    foodVendors: ['Carnivore Restaurant'],
+    entryFee: 500,
+    phone: '+254 733 000 002',
+    whatsapp: '+254 733 000 002',
+    tags: ['jdm', 'night', 'tuner']
+  },
+  {
+    id: '3',
+    title: 'Classic Car Show & Brunch',
+    location: 'Karen Country Club',
+    address: 'Karen Country Club, Karen',
+    date: '2026-02-09T10:00:00Z',
+    endDate: '2026-02-09T16:00:00Z',
+    description: 'Vintage and classic car display with gourmet brunch. Family-friendly event.',
+    image: placeholderImages.restaurant,
+    organizer: 'Classic Car Society Kenya',
+    attendees: 32,
+    maxAttendees: 80,
+    carTypes: ['Classic', 'Vintage', 'Luxury'],
+    foodAvailable: true,
+    foodVendors: ['Karen Country Club Restaurant'],
+    entryFee: 1000,
+    phone: '+254 744 000 003',
+    whatsapp: '+254 744 000 003',
+    tags: ['classic', 'brunch', 'family']
+  }
+];
 
 // Dummy restaurants data
 export const dummyRestaurants: Restaurant[] = [

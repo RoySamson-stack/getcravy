@@ -30,6 +30,10 @@ export type RootStackParamList = {
   EventDetail: {
     eventId: string;
   };
+  CarMeets: undefined;
+  CarMeetDetail: {
+    meetId: string;
+  };
   Search: undefined;
   Bookings: undefined;
 };
@@ -74,6 +78,27 @@ export type User = {
   phone?: string;
   favorites: string[];
   address?: string;
+};
+
+export type CarMeet = {
+  id: string;
+  title: string;
+  location: string;
+  address: string;
+  date: string;
+  endDate?: string;
+  description: string;
+  image: any;
+  organizer: string;
+  attendees: number;
+  maxAttendees: number;
+  carTypes: string[];
+  foodAvailable: boolean;
+  foodVendors?: string[];
+  entryFee: number;
+  phone: string;
+  whatsapp: string;
+  tags: string[];
 };
 
 

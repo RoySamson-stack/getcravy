@@ -18,6 +18,8 @@ import ProfileScreen from './screens/ProfileScreen';
 import VideoFeedScreen from './screens/VideoFeedScreen';
 import EventsScreen from './screens/EventsScreen';
 import EventDetailScreen from './screens/EventDetailScreen';
+import CarMeetsScreen from './screens/CarMeetsScreen';
+import CarMeetDetailScreen from './screens/CarMeetDetailScreen';
 import BookingsScreen from './screens/BookingsScreen';
 import { useInactivityTimeout } from './hooks/useInactivityTimeout';
 
@@ -144,6 +146,16 @@ function AppNavigator() {
             name="EventDetail" 
             component={EventDetailScreen} 
             options={{ title: 'Event Details' }} 
+          />
+          <Stack.Screen 
+            name="CarMeets" 
+            component={CarMeetsScreen} 
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="CarMeetDetail" 
+            component={CarMeetDetailScreen} 
+            options={{ headerShown: false }} 
           />
           <Stack.Screen 
             name="Bookings" 
