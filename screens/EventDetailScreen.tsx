@@ -238,6 +238,22 @@ const EventDetailScreen = ({ navigation, route }: any) => {
           </View>
         )}
 
+        {event.dressCode && (
+          <View style={styles.dressCodeContainer}>
+            <View style={[styles.dressCodeHeader, { backgroundColor: colors.primary + '15' }]}>
+              <Ionicons name="shirt-outline" size={24} color={colors.primary} />
+              <Text style={[styles.dressCodeTitle, { color: colors.text }]}>Dress Code</Text>
+              {event.dressCodeAiGenerated && (
+                <View style={[styles.aiBadge, { backgroundColor: colors.primary }]}>
+                  <Ionicons name="sparkles" size={12} color="#FFFFFF" />
+                  <Text style={styles.aiBadgeText}>AI</Text>
+                </View>
+              )}
+            </View>
+            <Text style={[styles.dressCodeValue, { color: colors.primary }]}>{event.dressCode}</Text>
+          </View>
+        )}
+
         {/* Description */}
         <View style={styles.descriptionContainer}>
           <Text style={[styles.descriptionTitle, { color: colors.text }]}>About</Text>
@@ -498,6 +514,41 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     marginTop: 16,
+  },
+  dressCodeContainer: {
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  dressCodeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 8,
+  },
+  dressCodeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  aiBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  dressCodeValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 12,
+    paddingTop: 8,
   },
 });
 

@@ -108,6 +108,17 @@ const Event = sequelize.define('Event', {
   featured: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  dressCode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      len: [0, 100]
+    }
+  },
+  dressCodeAiGenerated: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, {
   tableName: 'events',

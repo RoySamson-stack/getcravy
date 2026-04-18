@@ -104,6 +104,17 @@ const Restaurant = sequelize.define('Restaurant', {
       model: 'users',
       key: 'id'
     }
+  },
+  dressCode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      len: [0, 100]
+    }
+  },
+  dressCodeAiGenerated: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, {
   tableName: 'restaurants',

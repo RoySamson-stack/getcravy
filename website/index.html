@@ -4,155 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoEat - Restaurant & Events Discovery Platform</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #2C2C2C; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        header { background: linear-gradient(135deg, #E23744 0%, #C02E3A 100%); color: white; padding: 3rem 0; text-align: center; }
-        h1 { font-size: 3.5rem; margin-bottom: 1rem; font-weight: 700; }
-        .subtitle { font-size: 1.3rem; opacity: 0.95; max-width: 600px; margin: 0 auto; }
-        .hero { padding: 4rem 0; text-align: center; background: #F8F8F8; }
-        .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; color: #2C2C2C; }
-        .hero p { font-size: 1.2rem; color: #666666; max-width: 700px; margin: 0 auto; }
-        .app-showcase { padding: 4rem 0; background: white; text-align: center; }
-        .app-showcase h2 { font-size: 2.2rem; margin-bottom: 3rem; color: #2C2C2C; }
-        .phone-mockups { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem; }
-        .phone-mockup { width: 280px; height: 560px; background: #2C2C2C; border-radius: 30px; padding: 15px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .phone-screen { width: 100%; height: 100%; background: #F8F8F8; border-radius: 20px; overflow: hidden; position: relative; }
-        
-        /* Home Screen - Accurate to real app */
-        .home-screen { padding: 20px 20px 0 20px; }
-        .home-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .home-greeting { font-size: 20px; font-weight: bold; color: #2C2C2C; margin-bottom: 4px; }
-        .home-location { font-size: 14px; color: #666666; display: flex; align-items: center; gap: 4px; }
-        .home-icons { display: flex; gap: 12px; align-items: center; }
-        .icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
-        .search-bar { background: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .search-text { color: #999999; font-size: 16px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .section-title { font-size: 20px; font-weight: bold; color: #2C2C2C; }
-        .view-all { font-size: 14px; font-weight: 600; color: #E23744; }
-        .event-card { background: white; border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 200px; }
-        .event-image { width: 100%; height: 120px; background: rgba(226, 55, 68, 0.2); display: flex; align-items: center; justify-content: center; color: #E23744; font-size: 24px; }
-        .event-content { padding: 12px; }
-        .event-title { font-size: 16px; font-weight: 600; color: #2C2C2C; margin-bottom: 4px; }
-        .event-date { font-size: 12px; color: #666666; margin-bottom: 8px; }
-        .event-footer { display: flex; justify-content: space-between; align-items: center; }
-        .event-location { font-size: 12px; color: #666666; flex: 1; }
-        .event-price { font-size: 14px; font-weight: 600; color: #E23744; }
-        
-        /* Events Screen - Accurate to real app */
-        .events-screen { padding: 20px; }
-        .events-header { margin-bottom: 20px; }
-        .events-title { font-size: 24px; font-weight: bold; color: #2C2C2C; margin-bottom: 8px; text-align: center; }
-        .events-subtitle { font-size: 14px; color: #666666; text-align: center; }
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-tab { background: #E23744; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; white-space: nowrap; font-weight: 500; }
-        .filter-tab.inactive { background: #EEEEEE; color: #666666; }
-        .events-list { display: flex; flex-direction: column; gap: 12px; }
-        
-        /* Restaurant Screen - Accurate to real app */
-        .restaurant-screen { padding: 20px; }
-        .restaurant-image { width: 100%; height: 120px; background: #f0f0f0; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: #E23744; font-size: 30px; }
-        .restaurant-name { font-size: 18px; font-weight: bold; color: #2C2C2C; margin-bottom: 4px; text-align: center; }
-        .restaurant-category { font-size: 12px; color: #666666; margin-bottom: 4px; text-align: center; }
-        .restaurant-rating { font-size: 12px; color: #FFB800; margin-bottom: 12px; text-align: center; }
-        .restaurant-details { margin-bottom: 16px; }
-        .detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; }
-        .detail-label { color: #666666; }
-        .detail-value { color: #2C2C2C; font-weight: 500; }
-        .action-buttons { display: flex; gap: 8px; margin-top: 16px; }
-        .action-btn { flex: 1; background: #E23744; color: white; padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 14px; }
-        .action-btn.secondary { background: #EEEEEE; color: #2C2C2C; }
-        .download-section { background: #F8F8F8; padding: 4rem 0; text-align: center; }
-        .download-section h2 { font-size: 2.2rem; margin-bottom: 1rem; color: #2C2C2C; }
-        .download-btn { display: inline-block; background: #E23744; color: white; padding: 1.2rem 2.5rem; text-decoration: none; border-radius: 8px; font-size: 1.2rem; font-weight: 600; margin: 1.5rem; transition: all 0.3s; box-shadow: 0 4px 15px rgba(226, 55, 68, 0.3); }
-        .download-btn:hover { background: #C02E3A; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(226, 55, 68, 0.4); }
-        .download-info { margin-top: 1.5rem; color: #666666; font-size: 0.95rem; }
-        .features { padding: 4rem 0; background: white; }
-        .features h2 { text-align: center; margin-bottom: 3rem; font-size: 2.2rem; color: #2C2C2C; }
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
-        .feature { background: #F8F8F8; padding: 2.5rem; border-radius: 12px; border-left: 4px solid #E23744; transition: transform 0.3s; }
-        .feature:hover { transform: translateY(-5px); }
-        .feature h3 { font-size: 1.4rem; margin-bottom: 1rem; color: #2C2C2C; }
-        .feature p { color: #666666; font-size: 1rem; }
-        .about { padding: 4rem 0; background: #F8F8F8; }
-        .about h2 { text-align: center; margin-bottom: 2rem; font-size: 2.2rem; color: #2C2C2C; }
-        .about-content { max-width: 800px; margin: 0 auto; text-align: center; }
-        .about p { font-size: 1.1rem; color: #666666; margin-bottom: 1.5rem; }
-        footer { background: #2C2C2C; color: white; text-align: center; padding: 3rem 0; }
-        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: left; margin-bottom: 2rem; }
-        .footer-section h3 { margin-bottom: 1rem; color: #E23744; }
-        .footer-section p, .footer-section a { color: #999999; text-decoration: none; }
-        .footer-section a:hover { color: #E23744; }
-        .footer-bottom { border-top: 1px solid #666666; padding-top: 2rem; text-align: center; }
-        @media (max-width: 768px) {
-            .phone-mockups { flex-direction: column; align-items: center; }
-            h1 { font-size: 2.5rem; }
-            .hero h2 { font-size: 2rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>GoEat</h1>
-            <p class="subtitle">Stop scrolling Instagram for hours. Find the best restaurants and food events in Nairobi—all in one place.</p>
+            <div class="logo">GoEat</div>
         </div>
     </header>
 
     <section class="hero">
         <div class="container">
-            <h2>Discover Restaurants & Food Events</h2>
+            <h1>Discover Nairobi's Best<br><span>Food & Events</span></h1>
             <p>Events-first discovery with vibe-based browsing, real-time information, and direct restaurant contact. Built for Nairobians who want to discover the best food experiences in their city.</p>
+            <div class="cta-group">
+                <a href="#download" class="btn btn-primary">Download App</a>
+                <a href="#features" class="btn btn-secondary">Explore Features</a>
+            </div>
         </div>
     </section>
 
     <section class="app-showcase">
         <div class="container">
-            <h2>See GoEat in Action</h2>
+            <div class="section-header">
+                <h2>See GoEat in Action</h2>
+                <p>A sleek, intuitive interface designed for quick discovery.</p>
+            </div>
+            
             <div class="phone-mockups">
-                <div class="phone-mockup">
-                    <div class="phone-screen">
-                        <div class="home-screen">
-                            <div class="home-header">
-                                <div>
-                                    <div class="home-greeting">Hello, Guest</div>
-                                    <div class="home-location">📍 Nairobi</div>
+                <!-- Phone 1: Home -->
+                <div class="phone-wrapper">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="app-ui">
+                                <div class="app-header">
+                                    <div class="app-greeting">Hello, Guest</div>
+                                    <div class="app-location">📍 Nairobi</div>
                                 </div>
-                                <div class="home-icons">
-                                    <div class="icon-btn">📅</div>
-                                    <div class="icon-btn">👤</div>
+                                <div class="app-search">
+                                    <span>🔍 Search restaurants, events...</span>
                                 </div>
-                            </div>
-                            <div class="search-bar">
-                                <span>🔍</span>
-                                <span class="search-text">Search restaurants, events...</span>
-                            </div>
-                            <div class="section-header">
-                                <div class="section-title">Featured Events</div>
-                                <div class="view-all">View All</div>
-                            </div>
-                            <div style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px;">
-                                <div class="event-card">
-                                    <div class="event-image">📅</div>
-                                    <div class="event-content">
-                                        <div class="event-title">Food Festival</div>
-                                        <div class="event-date">Dec 15 • 6:00 PM</div>
-                                        <div class="event-footer">
-                                            <div class="event-location">📍 Uhuru Park</div>
-                                            <div class="event-price">Free</div>
-                                        </div>
-                                    </div>
+                                <div class="app-section-title">
+                                    <span>Featured Events</span>
+                                    <span style="color: #FF416C; font-size: 14px;">View All</span>
                                 </div>
-                                <div class="event-card">
-                                    <div class="event-image">📅</div>
-                                    <div class="event-content">
-                                        <div class="event-title">Wine Night</div>
-                                        <div class="event-date">Dec 16 • 7:30 PM</div>
-                                        <div class="event-footer">
-                                            <div class="event-location">📍 Villa Rosa</div>
-                                            <div class="event-price">KES 2500</div>
+                                <div class="app-cards">
+                                    <div class="app-card">
+                                        <div class="app-card-img" style="background: url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80') center/cover;"></div>
+                                        <div class="app-card-content">
+                                            <div class="app-card-title">Food Festival</div>
+                                            <div class="app-card-sub">Dec 15 • 6:00 PM</div>
+                                            <div style="display:flex; justify-content: space-between;">
+                                                <div class="app-card-sub" style="margin:0;">📍 Uhuru Park</div>
+                                                <div class="app-card-price">Free</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -160,39 +65,31 @@
                         </div>
                     </div>
                 </div>
-                <div class="phone-mockup">
-                    <div class="phone-screen">
-                        <div class="events-screen">
-                            <div class="events-header">
-                                <div class="events-title">Events</div>
-                                <div class="events-subtitle">Discover food events happening now</div>
-                            </div>
-                            <div class="filter-tabs">
-                                <div class="filter-tab">All Events</div>
-                                <div class="filter-tab inactive">This Week</div>
-                                <div class="filter-tab inactive">Festivals</div>
-                                <div class="filter-tab inactive">Live Music</div>
-                            </div>
-                            <div class="events-list">
-                                <div class="event-card" style="width: 100%;">
-                                    <div class="event-image">📅</div>
-                                    <div class="event-content">
-                                        <div class="event-title">Street Food Carnival</div>
-                                        <div class="event-date">Today • 5:00 PM - 11:00 PM</div>
-                                        <div class="event-footer">
-                                            <div class="event-location">📍 Uhuru Park</div>
-                                            <div class="event-price">Free</div>
-                                        </div>
-                                    </div>
+
+                <!-- Phone 2: Events -->
+                <div class="phone-wrapper">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="app-ui">
+                                <div class="app-header" style="text-align: center; padding-bottom: 20px;">
+                                    <div class="app-greeting" style="font-size: 20px;">Events</div>
+                                    <div class="app-location" style="justify-content: center;">Discover happenings now</div>
                                 </div>
-                                <div class="event-card" style="width: 100%;">
-                                    <div class="event-image">📅</div>
-                                    <div class="event-content">
-                                        <div class="event-title">Brunch & Beats</div>
-                                        <div class="event-date">Tomorrow • 11:00 AM - 4:00 PM</div>
-                                        <div class="event-footer">
-                                            <div class="event-location">📍 The Alchemist</div>
-                                            <div class="event-price">KES 1500</div>
+                                <div style="display:flex; gap: 8px; padding: 0 20px 15px; overflow-x: hidden;">
+                                    <div style="background: #FF416C; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px;">All Events</div>
+                                    <div style="background: #e0e0e0; color: #666; padding: 6px 12px; border-radius: 20px; font-size: 12px;">This Week</div>
+                                    <div style="background: #e0e0e0; color: #666; padding: 6px 12px; border-radius: 20px; font-size: 12px;">Festivals</div>
+                                </div>
+                                <div style="padding: 0 20px;">
+                                    <div class="app-card" style="margin-bottom: 15px;">
+                                        <div class="app-card-img" style="background: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80') center/cover;"></div>
+                                        <div class="app-card-content">
+                                            <div class="app-card-title">Street Food Carnival</div>
+                                            <div class="app-card-sub">Today • 5:00 PM - 11:00 PM</div>
+                                            <div style="display:flex; justify-content: space-between;">
+                                                <div class="app-card-sub" style="margin:0;">📍 Uhuru Park</div>
+                                                <div class="app-card-price">Free</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -200,83 +97,86 @@
                         </div>
                     </div>
                 </div>
-                <div class="phone-mockup">
-                    <div class="phone-screen">
-                        <div class="restaurant-screen">
-                            <div class="restaurant-image">🍽️</div>
-                            <div class="restaurant-name">Carnivore Restaurant</div>
-                            <div class="restaurant-category">Kenyan • Grill</div>
-                            <div class="restaurant-rating">⭐ 4.8 (324 reviews)</div>
-                            <div class="restaurant-details">
-                                <div class="detail-row">
-                                    <span class="detail-label">Delivery Time:</span>
-                                    <span class="detail-value">20-30 min</span>
+
+                <!-- Phone 3: Restaurant -->
+                <div class="phone-wrapper">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="app-ui">
+                                <div style="height: 200px; background: url('https://images.unsplash.com/photo-1544148103-0773bf10d330?w=500&q=80') center/cover; position:relative;">
+                                    <div style="position:absolute; bottom:0; left:0; right:0; padding:20px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color:white;">
+                                        <div style="font-size: 20px; font-weight:700;">Carnivore Restaurant</div>
+                                        <div style="font-size: 14px; opacity:0.9;">Kenyan • Grill</div>
+                                    </div>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Price Range:</span>
-                                    <span class="detail-value">KES 1000-3000</span>
+                                <div style="padding: 20px;">
+                                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                                        <div style="flex:1; background:#f0f0f0; padding:10px; border-radius:12px; text-align:center;">
+                                            <div style="font-size:12px; color:#666;">Rating</div>
+                                            <div style="font-weight:700;">⭐ 4.8</div>
+                                        </div>
+                                        <div style="flex:1; background:#f0f0f0; padding:10px; border-radius:12px; text-align:center;">
+                                            <div style="font-size:12px; color:#666;">Delivery</div>
+                                            <div style="font-weight:700;">20-30m</div>
+                                        </div>
+                                    </div>
+                                    <div class="app-section-title" style="padding:0; margin-bottom:10px;">Today's Special</div>
+                                    <div class="app-card">
+                                        <div class="app-card-content" style="background:#fff0f3;">
+                                            <div class="app-card-title">Nyama Choma Platter</div>
+                                            <div class="app-card-sub" style="color: #FF416C;">20% OFF - Until 9:00 PM</div>
+                                            <div style="font-weight:700;">KES 1,920 <span style="text-decoration:line-through; color:#999; font-size:12px; font-weight:normal;">KES 2,400</span></div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex; gap:10px; margin-top:20px;">
+                                        <div style="flex:1; background:#FF416C; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:600;">Call</div>
+                                        <div style="flex:1; background:#25D366; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:600;">WhatsApp</div>
+                                    </div>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Status:</span>
-                                    <span class="detail-value" style="color: #4CAF50;">Open Now</span>
-                                </div>
-                            </div>
-                            <div class="section-title" style="font-size: 16px; margin-bottom: 8px;">Today's Special</div>
-                            <div class="event-card" style="width: 100%; margin-bottom: 16px;">
-                                <div class="event-content">
-                                    <div class="event-title">Nyama Choma Platter</div>
-                                    <div class="event-date" style="color: #E23744;">20% OFF - Until 9:00 PM</div>
-                                    <div class="event-location">KES 2,400 → KES 1,920</div>
-                                </div>
-                            </div>
-                            <div class="action-buttons">
-                                <div class="action-btn">📞 Call</div>
-                                <div class="action-btn secondary">💬 WhatsApp</div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
-    <section class="download-section">
+    <section id="features" class="features">
         <div class="container">
-            <h2>Download GoEat</h2>
-            <p>Get the app and start discovering amazing food experiences in Nairobi</p>
-            <a href="/downloads/goeat.apk" class="download-btn" download>Download Android APK</a>
-            <div class="download-info">
-                <p>Android 6.0+ required • Version 1.0.0 • 25MB</p>
-                <p>Enable "Install from unknown sources" in your Android settings</p>
+            <div class="section-header">
+                <h2>Why Choose GoEat</h2>
+                <p>Everything you need to plan your next food adventure.</p>
             </div>
-        </div>
-    </section>
-
-    <section class="features">
-        <div class="container">
-            <h2>Key Features</h2>
+            
             <div class="feature-grid">
-                <div class="feature">
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
                     <h3>Events Discovery</h3>
                     <p>Find food events happening today and this weekend. Never miss out on pop-ups, food festivals, and special dining experiences.</p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
+                    <div class="feature-icon">🍽️</div>
                     <h3>Restaurant Discovery</h3>
                     <p>Browse restaurants by vibe, cuisine, and location. Discover hidden gems and popular spots tailored to your preferences.</p>
                 </div>
-                <div class="feature">
-                    <h3>Location-Based Search</h3>
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <h3>Location-Based</h3>
                     <p>Discover nearby restaurants and events using GPS. Find great food wherever you are in Nairobi.</p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
                     <h3>Vibe-Based Browsing</h3>
                     <p>Browse by mood: Party, Date Night, Casual, Fine Dining, Family, Brunch. Find the perfect spot for any occasion.</p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
                     <h3>Direct Contact</h3>
                     <p>Call and WhatsApp restaurants directly from the app. Make reservations and inquiries with ease.</p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
                     <h3>Deals & Specials</h3>
                     <p>View today's deals and happy hours. Save money while discovering new places to eat.</p>
                 </div>
@@ -284,13 +184,16 @@
         </div>
     </section>
 
-    <section class="about">
+    <section id="download" class="download-section">
         <div class="container">
-            <h2>About GoEat</h2>
-            <div class="about-content">
-                <p>GoEat is a mobile platform designed specifically for Nairobians who want to discover the best restaurants and food events in their city. We understand that finding great food experiences shouldn't require endless scrolling through social media.</p>
-                <p>Our platform combines real-time event information, comprehensive restaurant listings, and intuitive search features to help you discover your next favorite meal or food experience.</p>
-                <p>Built with React Native and powered by a robust backend, GoEat delivers a smooth, fast, and reliable experience for food discovery in Nairobi.</p>
+            <div class="download-box">
+                <h2>Ready to Explore?</h2>
+                <p>Get the app and start discovering amazing food experiences in Nairobi</p>
+                <a href="/downloads/goeat.apk" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 3rem;" download>Download Android APK</a>
+                <div class="download-info">
+                    <p>Android 6.0+ required • Version 1.0.0 • 25MB</p>
+                    <p style="margin-top: 0.5rem; color: rgba(255,255,255,0.5);">Enable "Install from unknown sources" in your settings</p>
+                </div>
             </div>
         </div>
     </section>
@@ -298,19 +201,19 @@
     <footer>
         <div class="container">
             <div class="footer-content">
-                <div class="footer-section">
+                <div class="footer-col brand">
                     <h3>GoEat</h3>
-                    <p>Restaurant & Events Discovery Platform for Nairobi</p>
+                    <p>Stop scrolling Instagram for hours. Find the best restaurants and food events in Nairobi—all in one place.</p>
                 </div>
-                <div class="footer-section">
-                    <h3>Support</h3>
-                    <p>Email: support@goeat.com</p>
-                    <p>For technical issues and feedback</p>
+                <div class="footer-col">
+                    <h3>Contact Us</h3>
+                    <p>support@goeat.com</p>
+                    <p>Nairobi, Kenya</p>
                 </div>
-                <div class="footer-section">
+                <div class="footer-col">
                     <h3>Legal</h3>
-                    <a href="/privacy">Privacy Policy</a><br>
-                    <a href="/terms">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
                 </div>
             </div>
             <div class="footer-bottom">

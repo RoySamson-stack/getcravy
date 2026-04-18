@@ -8,9 +8,11 @@ router.get('/', restaurantController.getAllRestaurants);
 router.get('/featured', restaurantController.getFeaturedRestaurants);
 router.get('/nearby', restaurantController.getNearbyRestaurants);
 router.get('/:id', restaurantController.getRestaurantById);
+router.post('/:id/dresscode/generate', restaurantController.generateDressCode);
 
 // Protected routes (require authentication)
 router.post('/', authenticate, restaurantController.createRestaurant);
+router.put('/:id/dresscode', authenticate, restaurantController.updateDressCode);
 router.put('/:id', authenticate, restaurantController.updateRestaurant);
 router.delete('/:id', authenticate, restaurantController.deleteRestaurant);
 

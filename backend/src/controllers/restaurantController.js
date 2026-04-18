@@ -2,6 +2,57 @@ const { Restaurant, Event, Deal } = require('../models/associations');
 const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+const generateAiDressCode = async (restaurantName, category, priceRange, neighborhood) => {
+  if (!OPENAI_API_KEY) {
+    return generateFallbackDressCode(category, priceRange);
+  }
+
+  const prompt = `Generate a concise dress code recommendation (max 10 words) for a restaurant with this details:
+- Name: ${restaurantName}
+- Category: ${category}
+- Price Range: ${priceRange || 'Not specified'}
+- Neighborhood: ${neighborhood || 'Not specified'}
+
+Respond with ONLY the dress code recommendation (e.g., "Smart Casual", "Business Formal", "Casual", "Elegant").`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 50,
+        temperature: 0.3
+      })
+    });
+
+    const data = await response.json();
+    if (data.choices && data.choices[0]?.message?.content) {
+      return data.choices[0].message.content.trim();
+    }
+    return generateFallbackDressCode(category, priceRange);
+  } catch (error) {
+    console.error('AI dress code generation error:', error);
+    return generateFallbackDressCode(category, priceRange);
+  }
+};
+
+const generateFallbackDressCode = (category, priceRange) => {
+  const combinations = {
+    '$': 'Casual',
+    '$$': 'Smart Casual',
+    '$$$': 'Business Casual',
+    '$$$$': 'Elegant'
+  };
+  return combinations[priceRange] || combinations['$$'];
+};
+
 // @route   GET /api/restaurants
 // @desc    Get all restaurants with filtering and pagination
 // @access  Public
@@ -316,6 +367,96 @@ exports.deleteRestaurant = async (req, res) => {
       success: false,
       message: 'Server error',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// @route   POST /api/restaurants/:id/dresscode/generate
+// @desc    Generate AI dress code for restaurant
+// @access  Public
+exports.generateDressCode = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const restaurant = await Restaurant.findByPk(id);
+
+    if (!restaurant || !restaurant.isActive) {
+      return res.status(404).json({
+        success: false,
+        message: 'Restaurant not found'
+      });
+    }
+
+    const dressCode = await generateAiDressCode(
+      restaurant.name,
+      restaurant.category,
+      restaurant.priceRange,
+      restaurant.neighborhood
+    );
+
+    restaurant.dressCode = dressCode;
+    restaurant.dressCodeAiGenerated = true;
+    await restaurant.save();
+
+    res.json({
+      success: true,
+      data: {
+        dressCode,
+        aiGenerated: true
+      }
+    });
+  } catch (error) {
+    console.error('Error generating dress code:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating dress code',
+      error: error.message
+    });
+  }
+};
+
+// @route   PUT /api/restaurants/:id/dresscode
+// @desc    Update dress code for restaurant
+// @access  Private (Restaurant owner only)
+exports.updateDressCode = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dressCode } = req.body;
+    const userId = req.user.id;
+
+    const restaurant = await Restaurant.findByPk(id);
+
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Restaurant not found'
+      });
+    }
+
+    if (restaurant.ownerId !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update this restaurant'
+      });
+    }
+
+    restaurant.dressCode = dressCode;
+    restaurant.dressCodeAiGenerated = false;
+    await restaurant.save();
+
+    res.json({
+      success: true,
+      data: {
+        dressCode: restaurant.dressCode,
+        aiGenerated: false
+      }
+    });
+  } catch (error) {
+    console.error('Error updating dress code:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating dress code',
+      error: error.message
     });
   }
 };

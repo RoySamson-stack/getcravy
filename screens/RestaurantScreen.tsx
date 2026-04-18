@@ -76,9 +76,11 @@ const RestaurantScreen = ({ route, navigation }: any) => {
             price: r.priceRange || 'Ksh',
             address: r.address || 'Address not available',
             phone: r.phone || 'Phone not available',
-            hours: r.hours || null, // Keep as object for isOpenNow check
+            hours: r.hours || null,
             hoursFormatted: r.hours ? formatHours(r.hours) : 'Hours not available',
-            description: r.description || 'No description available'
+            description: r.description || 'No description available',
+            dressCode: r.dressCode || null,
+            dressCodeAiGenerated: r.dressCodeAiGenerated || false
           });
         } else {
           // Fallback to route params or dummy data if API fails
@@ -524,6 +526,22 @@ const RestaurantScreen = ({ route, navigation }: any) => {
               <Text style={styles.infoContent}>{restaurant.description}</Text>
             </View>
           </View>
+
+          {restaurant.dressCode && (
+            <View style={styles.dressCodeSection}>
+              <View style={styles.dressCodeHeader}>
+                <Ionicons name="shirt-outline" size={24} color={colors.primary} />
+                <Text style={styles.dressCodeTitle}>Dress Code</Text>
+                {restaurant.dressCodeAiGenerated && (
+                  <View style={styles.aiBadge}>
+                    <Ionicons name="sparkles" size={12} color="#FFFFFF" />
+                    <Text style={styles.aiBadgeText}>AI</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.dressCodeValue}>{restaurant.dressCode}</Text>
+            </View>
+          )}
         </View>
       )}
       
@@ -1313,6 +1331,45 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontWeight: '600',
     color: colors.primary,
     marginTop: 4,
+  },
+  dressCodeSection: {
+    marginTop: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.primary + '30',
+  },
+  dressCodeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: colors.primary + '15',
+  },
+  dressCodeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginLeft: 8,
+    flex: 1,
+  },
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  aiBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  dressCodeValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.primary,
+    padding: 12,
   },
 });
 

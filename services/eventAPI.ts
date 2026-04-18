@@ -19,6 +19,8 @@ export interface Event {
   userId: string;
   featured: boolean;
   isActive: boolean;
+  dressCode?: string;
+  dressCodeAiGenerated?: boolean;
   restaurant?: {
     id: string;
     name: string;

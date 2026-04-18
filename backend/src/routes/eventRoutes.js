@@ -18,9 +18,11 @@ const eventValidation = [
 router.get('/', eventController.getAllEvents);
 router.get('/:id', eventController.getEventById);
 router.get('/:id/attendees', eventController.getEventAttendees);
+router.post('/:id/dresscode/generate', eventController.generateDressCode);
 
 // Protected routes (require authentication)
 router.post('/', authenticate, eventValidation, eventController.createEvent);
+router.put('/:id/dresscode', authenticate, eventController.updateDressCode);
 router.post('/:id/attend', authenticate, eventController.attendEvent);
 router.delete('/:id/attend', authenticate, eventController.removeAttendance);
 

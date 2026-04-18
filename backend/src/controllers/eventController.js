@@ -3,6 +3,62 @@ const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 const Sequelize = require('sequelize');
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+// AI-powered dress code generation
+const generateAiDressCode = async (eventTitle, eventDescription, eventType, restaurantName, restaurantCategory) => {
+  if (!OPENAI_API_KEY) {
+    return generateFallbackDressCode(eventType, restaurantCategory);
+  }
+
+  const prompt = `Generate a concise dress code recommendation (max 10 words) for an event with this details:
+- Event: ${eventTitle}
+- Description: ${eventDescription}
+- Type: ${eventType}
+${restaurantName ? `- Restaurant: ${restaurantName}` : ''}
+${restaurantCategory ? `- Category: ${restaurantCategory}` : ''}
+
+Respond with ONLY the dress code recommendation (e.g., "Smart Casual", "Business Formal", "Beach Chic", "All White").`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 50,
+        temperature: 0.3
+      })
+    });
+
+    const data = await response.json();
+    if (data.choices && data.choices[0]?.message?.content) {
+      return data.choices[0].message.content.trim();
+    }
+    return generateFallbackDressCode(eventType, restaurantCategory);
+  } catch (error) {
+    console.error('AI dress code generation error:', error);
+    return generateFallbackDressCode(eventType, restaurantCategory);
+  }
+};
+
+const generateFallbackDressCode = (eventType, restaurantCategory) => {
+  const combinations = {
+    festival: { '$': 'Festival Wear', '$$': 'Boho Chic', '$$$': 'Boho Glam', '$$$$': 'Festival Glam' },
+    popup: { '$': 'Streetwear', '$$': 'Trendy Casual', '$$$': 'Stylish Casual', '$$$$': 'High Fashion' },
+    special: { '$': 'Smart Casual', '$$': 'Dressy Casual', '$$$': 'Business Casual', '$$$$': 'Black Tie Optional' },
+    entertainment: { '$': 'Casual', '$$': 'Casual Chic', '$$$': 'Dressy', '$$$$': 'Evening Formal' },
+    restaurant_event: { '$': 'Casual', '$$': 'Smart Casual', '$$$': 'Dressy Casual', '$$$$': 'Formal' }
+  };
+  
+  const category = restaurantCategory || '$$';
+  return combinations[eventType]?.[category] || combinations.restaurant_event['$$'];
+};
+
 // @route   GET /api/events
 // @desc    Get all events with filtering and pagination
 // @access  Public
@@ -426,6 +482,102 @@ exports.getEventAttendees = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching attendees',
+      error: error.message
+    });
+  }
+};
+
+// @route   POST /api/events/:id/dresscode/generate
+// @desc    Generate AI dress code for event
+// @access  Public
+exports.generateDressCode = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const event = await Event.findByPk(id, {
+      include: [{ model: Restaurant, as: 'restaurant' }]
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    const restaurantName = event.restaurant?.name;
+    const restaurantCategory = event.restaurant?.priceRange;
+
+    const dressCode = await generateAiDressCode(
+      event.title,
+      event.description,
+      event.eventType,
+      restaurantName,
+      restaurantCategory
+    );
+
+    event.dressCode = dressCode;
+    event.dressCodeAiGenerated = true;
+    await event.save();
+
+    res.json({
+      success: true,
+      data: {
+        dressCode,
+        aiGenerated: true
+      }
+    });
+  } catch (error) {
+    console.error('Error generating dress code:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating dress code',
+      error: error.message
+    });
+  }
+};
+
+// @route   PUT /api/events/:id/dresscode
+// @desc    Update dress code for event
+// @access  Private (Event creator only)
+exports.updateDressCode = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dressCode } = req.body;
+    const userId = req.user.id;
+
+    const event = await Event.findByPk(id);
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    if (event.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update this event'
+      });
+    }
+
+    event.dressCode = dressCode;
+    event.dressCodeAiGenerated = false;
+    await event.save();
+
+    res.json({
+      success: true,
+      data: {
+        dressCode: event.dressCode,
+        aiGenerated: false
+      }
+    });
+  } catch (error) {
+    console.error('Error updating dress code:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating dress code',
       error: error.message
     });
   }
