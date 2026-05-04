@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoEat Admin - Login</title>
+    <link rel="stylesheet" href="admin.css?v=2">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>GoEat</h1>
+                <p>Admin Portal</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="admin@goeat.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+    <script>
+        // HARDCODED LOGIN FOR DESIGN PREVIEW - v2
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            
+            // Accept any credentials for design preview
+            localStorage.setItem('adminToken', 'hardcoded-token-for-design-preview');
+            localStorage.setItem('adminUser', JSON.stringify({
+                id: '1',
+                name: 'Admin User',
+                email: email || 'admin@example.com',
+                role: 'admin'
+            }));
+            window.location.href = 'index.html?v=2';
+        });
+
+        // Auto-login for design preview
+        window.addEventListener('load', function() {
+            localStorage.setItem('adminToken', 'hardcoded-token-for-design-preview');
+            localStorage.setItem('adminUser', JSON.stringify({
+                id: '1',
+                name: 'Admin User',
+                email: 'admin@example.com',
+                role: 'admin'
+            }));
+        });
+    </script>
+</body>
+</html>

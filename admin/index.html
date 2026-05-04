@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoEat Admin Portal</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>GoEat</h1>
+                <p>Admin Portal</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" data-page="dashboard" class="active" onclick="showPage('dashboard')">Dashboard</a>
+                <a href="#" data-page="restaurants" onclick="showPage('restaurants')">Restaurants</a>
+                <a href="#" data-page="events" onclick="showPage('events')">Events</a>
+                <a href="#" data-page="deals" onclick="showPage('deals')">Deals</a>
+                <a href="#" data-page="menu" onclick="showPage('menu')">Menu Items</a>
+                <a href="#" data-page="users" onclick="showPage('users')">Users</a>
+                <a href="#" data-page="reviews" onclick="showPage('reviews')">Reviews</a>
+                <a href="#" data-page="reservations" onclick="showPage('reservations')">Reservations</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2 id="page-title">Dashboard</h2>
+                <div class="user-info">
+                    <span id="user-info"></span>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard -->
+                <div id="page-dashboard" class="page active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Restaurants</h3>
+                            <div class="value" id="stat-restaurants">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Events</h3>
+                            <div class="value" id="stat-events">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Deals</h3>
+                            <div class="value" id="stat-deals">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Users</h3>
+                            <div class="value" id="stat-users">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Reviews</h3>
+                            <div class="value" id="stat-reviews">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Reservations</h3>
+                            <div class="value" id="stat-reservations">-</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container" style="margin-bottom: 20px;">
+                        <div class="table-header">
+                            <h3>Recent Restaurants</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Category</th><th>City</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="recent-restaurants">
+                                <tr><td colspan="4" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Recent Events</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Date</th><th>Location</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="recent-events">
+                                <tr><td colspan="4" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Restaurants -->
+                <div id="page-restaurants" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Restaurants</h3>
+                            <button class="btn-add" onclick="openRestaurantModal()">Add Restaurant</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Category</th><th>City</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="restaurants-tbody">
+                                <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="restaurants-pagination" class="pagination"></div>
+                    </div>
+                </div>
+
+                <!-- Events -->
+                <div id="page-events" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Events</h3>
+                            <button class="btn-add" onclick="openEventModal()">Add Event</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Date</th><th>Location</th><th>Restaurant</th><th>Status</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="events-tbody">
+                                <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="events-pagination" class="pagination"></div>
+                    </div>
+                </div>
+
+                <!-- Deals -->
+                <div id="page-deals" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Deals</h3>
+                            <button class="btn-add" onclick="openDealModal()">Add Deal</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Restaurant</th><th>Discount</th><th>Validity</th><th>Status</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="deals-tbody">
+                                <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="deals-pagination" class="pagination"></div>
+                    </div>
+                </div>
+
+                <!-- Menu Items -->
+                <div id="page-menu" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Menu Items</h3>
+                            <button class="btn-add" onclick="openMenuItemModal()">Add Menu Item</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Restaurant</th><th>Price</th><th>Category</th><th>Status</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="menu-tbody">
+                                <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="menu-pagination" class="pagination"></div>
+                    </div>
+                </div>
+
+                <!-- Users -->
+                <div id="page-users" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Users</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <tr><td colspan="5" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="users-pagination" class="pagination"></div>
+                    </div>
+                </div>
+
+                <!-- Reviews -->
+                <div id="page-reviews" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Reviews</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>User</th><th>Restaurant</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="reviews-tbody">
+                                <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="reviews-pagination" class="pagination"></div>
+                    </div>
+                </div>
+
+                <!-- Reservations -->
+                <div id="page-reservations" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Reservations</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>User</th><th>Restaurant</th><th>Date/Time</th><th>Guests</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="reservations-tbody">
+                                <tr><td colspan="5" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="reservations-pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="form-content"></div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-save" onclick="saveCurrentForm()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js?v=2"></script>
+    <script>
+        let currentFormType = '';
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${page}`).classList.add('active');
+            setActiveNav(page);
+            document.getElementById('page-title').textContent = page.charAt(0).toUpperCase() + page.slice(1);
+
+            switch(page) {
+                case 'dashboard': loadDashboard(); break;
+                case 'restaurants': loadRestaurants(); break;
+                case 'events': loadEvents(); break;
+                case 'deals': loadDeals(); break;
+                case 'menu': loadMenuItems(); break;
+                case 'users': loadUsers(); break;
+                case 'reviews': loadReviews(); break;
+                case 'reservations': loadReservations(); break;
+            }
+        }
+
+        function saveCurrentForm() {
+            const title = document.getElementById('modal-title').textContent;
+            if (title.includes('Restaurant')) saveRestaurant();
+            else if (title.includes('Event')) saveEvent();
+            else if (title.includes('Deal')) saveDeal();
+            else if (title.includes('Menu')) saveMenuItem();
+        }
+
+        // Check auth on load
+        if (!checkAuth()) {
+            window.location.href = 'login.html';
+        } else {
+            loadDashboard();
+        }
+    </script>
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</body>
+</html>

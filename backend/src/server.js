@@ -29,6 +29,7 @@ const reservationRoutes = require('./routes/reservationRoutes');
 const videoRoutes = require('./routes/videoRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const dealRoutes = require('./routes/dealRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -76,6 +77,7 @@ app.use('/api/reservations', reservationRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/deals', dealRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 handler
 app.use((req, res) => {
