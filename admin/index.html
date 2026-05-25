@@ -3,223 +3,499 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoEat Admin Portal</title>
-    <link rel="stylesheet" href="admin.css">
+    <title>cravyapp Admin Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css?v=7">
 </head>
 <body>
     <div class="admin-layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1>GoEat</h1>
-                <p>Admin Portal</p>
+                <div class="brand-mark"></div>
+                <div>
+                    <h1>cravyapp</h1>
+                    <p>Admin Portal</p>
+                </div>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" data-page="dashboard" class="active" onclick="showPage('dashboard')">Dashboard</a>
-                <a href="#" data-page="restaurants" onclick="showPage('restaurants')">Restaurants</a>
-                <a href="#" data-page="events" onclick="showPage('events')">Events</a>
-                <a href="#" data-page="deals" onclick="showPage('deals')">Deals</a>
-                <a href="#" data-page="menu" onclick="showPage('menu')">Menu Items</a>
-                <a href="#" data-page="users" onclick="showPage('users')">Users</a>
-                <a href="#" data-page="reviews" onclick="showPage('reviews')">Reviews</a>
-                <a href="#" data-page="reservations" onclick="showPage('reservations')">Reservations</a>
+                <div class="nav-section">
+                    <div class="nav-section-label">Overview</div>
+                    <div class="nav-links">
+                        <a href="#" data-page="dashboard" data-title="Operations Dashboard" data-subtitle="" class="active" onclick="showPage('dashboard')">
+                            <span class="nav-icon">◫</span>
+                            <span class="nav-copy"><strong>Dashboard</strong><span>Business snapshot</span></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-label">Listings</div>
+                    <div class="nav-links">
+                        <a href="#" data-page="restaurants" data-title="Restaurants" data-subtitle="Manage restaurant listings, activation status, and pricing visibility." onclick="showPage('restaurants')">
+                            <span class="nav-icon">⌂</span>
+                            <span class="nav-copy"><strong>Restaurants</strong><span>Stores and outlets</span></span>
+                        </a>
+                        <a href="#" data-page="events" data-title="Events" data-subtitle="Curate food experiences, tasting sessions, launches, and ticketed nights." onclick="showPage('events')">
+                            <span class="nav-icon">✦</span>
+                            <span class="nav-copy"><strong>Events</strong><span>Experiences and nights</span></span>
+                        </a>
+                        <a href="#" data-page="deals" data-title="Deals" data-subtitle="Control campaigns, discount windows, and promotional visibility." onclick="showPage('deals')">
+                            <span class="nav-icon">%</span>
+                            <span class="nav-copy"><strong>Deals</strong><span>Discount campaigns</span></span>
+                        </a>
+                        <a href="#" data-page="menu" data-title="Menu Items" data-subtitle="Review item availability, pricing, and restaurant menu coverage." onclick="showPage('menu')">
+                            <span class="nav-icon">≡</span>
+                            <span class="nav-copy"><strong>Menu Items</strong><span>Catalog and pricing</span></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-label">People</div>
+                    <div class="nav-links">
+                        <a href="#" data-page="users" data-title="Users" data-subtitle="Monitor app users, roles, and account lifecycle from one place." onclick="showPage('users')">
+                            <span class="nav-icon">◉</span>
+                            <span class="nav-copy"><strong>Users</strong><span>Accounts and roles</span></span>
+                        </a>
+                        <a href="#" data-page="reviews" data-title="Reviews" data-subtitle="Moderate restaurant feedback and protect listing quality." onclick="showPage('reviews')">
+                            <span class="nav-icon">★</span>
+                            <span class="nav-copy"><strong>Reviews</strong><span>Ratings and comments</span></span>
+                        </a>
+                        <a href="#" data-page="reservations" data-title="Reservations" data-subtitle="Track guest bookings, guest counts, and reservation status." onclick="showPage('reservations')">
+                            <span class="nav-icon">◷</span>
+                            <span class="nav-copy"><strong>Reservations</strong><span>Bookings and guests</span></span>
+                        </a>
+                    </div>
+                </div>
             </nav>
         </aside>
 
         <main class="main-content">
             <div class="top-bar">
-                <h2 id="page-title">Dashboard</h2>
-                <div class="user-info">
-                    <span id="user-info"></span>
-                    <button class="btn-logout" onclick="logout()">Logout</button>
+                <div class="top-bar-left">
+                    <h2 id="page-title">Operations Dashboard</h2>
+                    <p id="page-subtitle"></p>
+                </div>
+                <div class="top-bar-right">
+                    <label class="top-search">
+                        <input type="text" placeholder="Search anything..." aria-label="Search admin portal">
+                    </label>
+                    <div id="live-status" class="status-chip">Live</div>
+                    <div class="toolbar-icon bell-icon">
+                        <span class="bell-dot"></span>
+                    </div>
+                    <div class="user-info">
+                        <span class="top-dot"></span>
+                        <div class="avatar" id="user-avatar">AO</div>
+                    </div>
                 </div>
             </div>
 
             <div class="content">
                 <!-- Dashboard -->
                 <div id="page-dashboard" class="page active">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <h3>Restaurants</h3>
-                            <div class="value" id="stat-restaurants">-</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Events</h3>
-                            <div class="value" id="stat-events">-</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Deals</h3>
-                            <div class="value" id="stat-deals">-</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Users</h3>
-                            <div class="value" id="stat-users">-</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Reviews</h3>
-                            <div class="value" id="stat-reviews">-</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Reservations</h3>
-                            <div class="value" id="stat-reservations">-</div>
-                        </div>
-                    </div>
+                    <div class="page-shell">
+                        <section class="dashboard-welcome">
+                            <div>
+                                <h3 id="dashboard-greeting">Good afternoon, Admin 👋</h3>
+                                <p id="dashboard-date">Thursday, 14 May 2026 · Nairobi, KE</p>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn-add dashboard-export">Export Report</button>
+                            </div>
+                        </section>
 
-                    <div class="table-container" style="margin-bottom: 20px;">
-                        <div class="table-header">
-                            <h3>Recent Restaurants</h3>
+                        <div class="dashboard-kpi-grid">
+                            <article class="snapshot-card snapshot-card-revenue">
+                                <div class="snapshot-icon"></div>
+                                <div class="snapshot-badge paid">Paid</div>
+                                <div class="snapshot-label">Total Revenue</div>
+                                <div class="snapshot-value" id="stat-projected-revenue">-</div>
+                                <div class="snapshot-trend positive">+18.4% vs last month</div>
+                            </article>
+                            <article class="snapshot-card snapshot-card-restaurants">
+                                <div class="snapshot-icon"></div>
+                                <div class="snapshot-badge pending">12 pending</div>
+                                <div class="snapshot-label">Active Restaurants</div>
+                                <div class="snapshot-value" id="stat-restaurants">-</div>
+                                <div class="snapshot-trend positive">+6 this month</div>
+                            </article>
+                            <article class="snapshot-card snapshot-card-orders">
+                                <div class="snapshot-icon"></div>
+                                <div class="snapshot-label">Orders Today</div>
+                                <div class="snapshot-value" id="stat-ticketed-events">-</div>
+                                <div class="snapshot-trend positive">+12.1% vs yesterday</div>
+                            </article>
+                            <article class="snapshot-card snapshot-card-users">
+                                <div class="snapshot-icon"></div>
+                                <div class="snapshot-label">Registered Users</div>
+                                <div class="snapshot-value" id="stat-users">-</div>
+                                <div class="snapshot-trend positive">+1,204 this week</div>
+                            </article>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Name</th><th>Category</th><th>City</th><th>Status</th></tr>
-                            </thead>
-                            <tbody id="recent-restaurants">
-                                <tr><td colspan="4" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
 
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Recent Events</h3>
+                        <div class="dashboard-grid">
+                            <div class="dashboard-main">
+                                <section class="analytics-card">
+                                    <div class="analytics-header">
+                                        <h3>Revenue Trend — Last 7 Days</h3>
+                                        <select class="chart-filter">
+                                            <option>This Week</option>
+                                        </select>
+                                    </div>
+                                    <div class="chart-shell">
+                                        <div class="chart-y-axis">
+                                            <span>KES 440k</span>
+                                            <span>KES 400k</span>
+                                            <span>KES 360k</span>
+                                            <span>KES 320k</span>
+                                            <span>KES 280k</span>
+                                        </div>
+                                        <div class="chart-area">
+                                            <svg viewBox="0 0 820 260" class="revenue-chart" aria-hidden="true">
+                                                <defs>
+                                                    <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="0%" stop-color="rgba(232, 52, 71, 0.18)"></stop>
+                                                        <stop offset="100%" stop-color="rgba(232, 52, 71, 0.02)"></stop>
+                                                    </linearGradient>
+                                                </defs>
+                                                <path d="M40 210 C110 185, 145 165, 205 150 S315 135, 365 188 S470 205, 520 115 S625 100, 675 140 S760 125, 790 88 L790 220 L40 220 Z" fill="url(#chartFill)"></path>
+                                                <path d="M40 210 C110 185, 145 165, 205 150 S315 135, 365 188 S470 205, 520 115 S625 100, 675 140 S760 125, 790 88" fill="none" stroke="#e83447" stroke-width="3.2" stroke-linecap="round"></path>
+                                                <circle cx="40" cy="210" r="5" fill="#e83447" stroke="#fff" stroke-width="3"></circle>
+                                                <circle cx="165" cy="178" r="5" fill="#e83447" stroke="#fff" stroke-width="3"></circle>
+                                                <circle cx="285" cy="150" r="5" fill="#e83447" stroke="#fff" stroke-width="3"></circle>
+                                                <circle cx="410" cy="188" r="5" fill="#e83447" stroke="#fff" stroke-width="3"></circle>
+                                                <circle cx="540" cy="120" r="5" fill="#e83447" stroke="#fff" stroke-width="3"></circle>
+                                                <circle cx="665" cy="142" r="5" fill="#e83447" stroke="#fff" stroke-width="3"></circle>
+                                                <circle cx="790" cy="88" r="5" fill="#e83447" stroke="#fff" stroke-width="3"></circle>
+                                            </svg>
+                                            <div class="chart-x-axis">
+                                                <span>May 8</span>
+                                                <span>May 9</span>
+                                                <span>May 10</span>
+                                                <span>May 11</span>
+                                                <span>May 12</span>
+                                                <span>May 13</span>
+                                                <span>May 14</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <div class="table-container dashboard-table">
+                                    <div class="table-header">
+                                        <div>
+                                            <h3>Financial Performance</h3>
+                                            <p>Top restaurant revenue and reservation performance.</p>
+                                        </div>
+                                    </div>
+                                    <div class="table-shell">
+                                        <table>
+                                            <thead>
+                                                <tr><th>Restaurant</th><th>Total Revenue</th><th>Paid Orders</th><th>Reservations</th><th>Reserved Guests</th></tr>
+                                            </thead>
+                                            <tbody id="financial-performance">
+                                                <tr><td colspan="5" class="loading">Loading...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <aside class="dashboard-side">
+                                <section class="quick-stats-card">
+                                    <div class="panel-head compact">
+                                        <div>
+                                            <h4>Quick Stats</h4>
+                                        </div>
+                                    </div>
+                                    <div class="quick-stats-list">
+                                        <div class="quick-stat-item amber">
+                                            <span>Pending Revenue</span>
+                                            <strong id="quick-pending-revenue">-</strong>
+                                            <div class="quick-stat-bar"><i></i></div>
+                                        </div>
+                                        <div class="quick-stat-item blue">
+                                            <span>Avg Order Value</span>
+                                            <strong id="quick-average-order">-</strong>
+                                            <div class="quick-stat-bar"><i></i></div>
+                                        </div>
+                                        <div class="quick-stat-item green">
+                                            <span>Reservation Fill</span>
+                                            <strong id="quick-reservation-fill">-</strong>
+                                            <div class="quick-stat-bar"><i></i></div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <div class="table-container dashboard-table">
+                                    <div class="table-header">
+                                        <div>
+                                            <h3>Recent Restaurants</h3>
+                                            <p>Latest listing activity and activation status.</p>
+                                        </div>
+                                    </div>
+                                    <div class="table-shell">
+                                        <table>
+                                            <thead>
+                                                <tr><th>Name</th><th>Category</th><th>City</th><th>Status</th></tr>
+                                            </thead>
+                                            <tbody id="recent-restaurants">
+                                                <tr><td colspan="4" class="loading">Loading...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="table-container dashboard-table">
+                                    <div class="table-header">
+                                        <div>
+                                            <h3>Recent Events</h3>
+                                            <p>Event activity and publishing status.</p>
+                                        </div>
+                                    </div>
+                                    <div class="table-shell">
+                                        <table>
+                                            <thead>
+                                                <tr><th>Name</th><th>Date</th><th>Location</th><th>Status</th></tr>
+                                            </thead>
+                                            <tbody id="recent-events">
+                                                <tr><td colspan="4" class="loading">Loading...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </aside>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Name</th><th>Date</th><th>Location</th><th>Status</th></tr>
-                            </thead>
-                            <tbody id="recent-events">
-                                <tr><td colspan="4" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
 
                 <!-- Restaurants -->
                 <div id="page-restaurants" class="page">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Restaurants</h3>
-                            <button class="btn-add" onclick="openRestaurantModal()">Add Restaurant</button>
+                    <div class="page-shell">
+                        <section class="page-hero">
+                            <div>
+                                <h3>Restaurant management</h3>
+                                <p>Manage partner restaurants, update pricing tiers, switch outlets on or off, and keep listing details clean for the mobile app.</p>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn-add" onclick="openRestaurantModal()">Add Restaurant</button>
+                            </div>
+                        </section>
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div>
+                                    <h3>Restaurants</h3>
+                                    <p>Partner listings and operational status.</p>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead>
+                                        <tr><th>Name</th><th>Category</th><th>City</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="restaurants-tbody">
+                                        <tr><td colspan="6" class="loading">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="restaurants-pagination" class="pagination"></div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Name</th><th>Category</th><th>City</th><th>Price</th><th>Status</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="restaurants-tbody">
-                                <tr><td colspan="6" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="restaurants-pagination" class="pagination"></div>
                     </div>
                 </div>
 
                 <!-- Events -->
                 <div id="page-events" class="page">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Events</h3>
-                            <button class="btn-add" onclick="openEventModal()">Add Event</button>
+                    <div class="page-shell">
+                        <section class="page-hero">
+                            <div>
+                                <h3>Event scheduling</h3>
+                                <p>Publish ticketed food events, classes, tastings, and restaurant activations while keeping venue assignment and visibility under control.</p>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn-add" onclick="openEventModal()">Add Event</button>
+                            </div>
+                        </section>
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div>
+                                    <h3>Events</h3>
+                                    <p>Upcoming event inventory and current status.</p>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead>
+                                        <tr><th>Name</th><th>Date</th><th>Location</th><th>Restaurant</th><th>Status</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="events-tbody">
+                                        <tr><td colspan="6" class="loading">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="events-pagination" class="pagination"></div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Name</th><th>Date</th><th>Location</th><th>Restaurant</th><th>Status</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="events-tbody">
-                                <tr><td colspan="6" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="events-pagination" class="pagination"></div>
                     </div>
                 </div>
 
                 <!-- Deals -->
                 <div id="page-deals" class="page">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Deals</h3>
-                            <button class="btn-add" onclick="openDealModal()">Add Deal</button>
+                    <div class="page-shell">
+                        <section class="page-hero">
+                            <div>
+                                <h3>Deals and promotions</h3>
+                                <p>Control discount campaigns, promotional messaging, and active validity windows shown to users in the app.</p>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn-add" onclick="openDealModal()">Add Deal</button>
+                            </div>
+                        </section>
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div>
+                                    <h3>Deals</h3>
+                                    <p>Promotional campaigns across partner restaurants.</p>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead>
+                                        <tr><th>Name</th><th>Restaurant</th><th>Discount</th><th>Validity</th><th>Status</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="deals-tbody">
+                                        <tr><td colspan="6" class="loading">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="deals-pagination" class="pagination"></div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Name</th><th>Restaurant</th><th>Discount</th><th>Validity</th><th>Status</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="deals-tbody">
-                                <tr><td colspan="6" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="deals-pagination" class="pagination"></div>
                     </div>
                 </div>
 
                 <!-- Menu Items -->
                 <div id="page-menu" class="page">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Menu Items</h3>
-                            <button class="btn-add" onclick="openMenuItemModal()">Add Menu Item</button>
+                    <div class="page-shell">
+                        <section class="page-hero">
+                            <div>
+                                <h3>Menu catalog</h3>
+                                <p>Maintain pricing, categories, and item availability so the mobile ordering experience stays accurate and consistent.</p>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn-add" onclick="openMenuItemModal()">Add Menu Item</button>
+                            </div>
+                        </section>
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div>
+                                    <h3>Menu Items</h3>
+                                    <p>Item-level menu inventory and sale availability.</p>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead>
+                                        <tr><th>Name</th><th>Restaurant</th><th>Price</th><th>Category</th><th>Status</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="menu-tbody">
+                                        <tr><td colspan="6" class="loading">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="menu-pagination" class="pagination"></div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Name</th><th>Restaurant</th><th>Price</th><th>Category</th><th>Status</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="menu-tbody">
-                                <tr><td colspan="6" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="menu-pagination" class="pagination"></div>
                     </div>
                 </div>
 
                 <!-- Users -->
                 <div id="page-users" class="page">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Users</h3>
+                    <div class="page-shell">
+                        <section class="page-hero">
+                            <div>
+                                <h3>User accounts</h3>
+                                <p>Review mobile users, role assignments, and administrative access across the platform.</p>
+                            </div>
+                        </section>
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div>
+                                    <h3>Users</h3>
+                                    <p>Customer and admin account activity.</p>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead>
+                                        <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="users-tbody">
+                                        <tr><td colspan="5" class="loading">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="users-pagination" class="pagination"></div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="users-tbody">
-                                <tr><td colspan="5" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="users-pagination" class="pagination"></div>
                     </div>
                 </div>
 
                 <!-- Reviews -->
                 <div id="page-reviews" class="page">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Reviews</h3>
+                    <div class="page-shell">
+                        <section class="page-hero">
+                            <div>
+                                <h3>Review moderation</h3>
+                                <p>Keep guest feedback trustworthy, manage visible ratings, and remove harmful or irrelevant submissions when necessary.</p>
+                            </div>
+                        </section>
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div>
+                                    <h3>Reviews</h3>
+                                    <p>User-submitted restaurant feedback and ratings.</p>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead>
+                                        <tr><th>User</th><th>Restaurant</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="reviews-tbody">
+                                        <tr><td colspan="6" class="loading">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="reviews-pagination" class="pagination"></div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>User</th><th>Restaurant</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="reviews-tbody">
-                                <tr><td colspan="6" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="reviews-pagination" class="pagination"></div>
                     </div>
                 </div>
 
                 <!-- Reservations -->
                 <div id="page-reservations" class="page">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Reservations</h3>
+                    <div class="page-shell">
+                        <section class="page-hero">
+                            <div>
+                                <h3>Reservations and guest flow</h3>
+                                <p>Track bookings, party sizes, and reservation status to understand hospitality demand across the network.</p>
+                            </div>
+                        </section>
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div>
+                                    <h3>Reservations</h3>
+                                    <p>Guest booking records and confirmation state.</p>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead>
+                                        <tr><th>User</th><th>Restaurant</th><th>Date/Time</th><th>Guests</th><th>Status</th></tr>
+                                    </thead>
+                                    <tbody id="reservations-tbody">
+                                        <tr><td colspan="5" class="loading">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="reservations-pagination" class="pagination"></div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>User</th><th>Restaurant</th><th>Date/Time</th><th>Guests</th><th>Status</th></tr>
-                            </thead>
-                            <tbody id="reservations-tbody">
-                                <tr><td colspan="5" class="loading">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="reservations-pagination" class="pagination"></div>
                     </div>
                 </div>
             </div>
@@ -241,7 +517,7 @@
         </div>
     </div>
 
-    <script src="admin.js?v=2"></script>
+    <script src="admin.js?v=7"></script>
     <script>
         let currentFormType = '';
 
@@ -249,7 +525,6 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${page}`).classList.add('active');
             setActiveNav(page);
-            document.getElementById('page-title').textContent = page.charAt(0).toUpperCase() + page.slice(1);
 
             switch(page) {
                 case 'dashboard': loadDashboard(); break;
@@ -278,9 +553,5 @@
             loadDashboard();
         }
     </script>
-    <style>
-        .page { display: none; }
-        .page.active { display: block; }
-    </style>
 </body>
 </html>

@@ -99,7 +99,7 @@ const SignupScreen = ({ navigation }: any) => {
               source={images.logo}
               style={styles.logo}
             />
-            <Text style={styles.logoText}>GoEat</Text>
+            <Text style={styles.logoText}>cravyapp</Text>
             <Text style={styles.tagline}>Create Your Account</Text>
           </View>
           

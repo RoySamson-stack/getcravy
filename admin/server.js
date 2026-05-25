@@ -12,5 +12,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`GoEat Admin Portal running at http://localhost:${PORT}`);
+    console.log(`cravyapp Admin Portal running at http://localhost:${PORT}`);
 });

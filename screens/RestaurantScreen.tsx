@@ -1,369 +1,193 @@
-  import React, { useState, useContext, useEffect } from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  Text, 
-  ScrollView, 
-  Image, 
-  TouchableOpacity,
-  FlatList,
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
   Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
-  Dimensions
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
-import { placeholderImages } from '../constants/images';
 import { restaurantAPI } from '../services/api';
 import { menuAPI } from '../services/menuAPI';
 import { reviewAPI } from '../services/reviewAPI';
-import { eventAPI, Event } from '../services/eventAPI';
 import { dealAPI, Deal } from '../services/dealAPI';
-import { ActivityIndicator, Linking, Alert } from 'react-native';
+import { reservationAPI } from '../services/reservationAPI';
+import { useCart } from '../context/CartContext';
 import { dummyMenuItems, dummyReviews, dummyRestaurants } from '../constants/dummyData';
 
-const { width } = Dimensions.get('window');
+const PRIMARY = '#E23744';
+const PAPER = '#F7F5F2';
+const INK = '#1A1A1A';
+const BORDER = '#EBEBEB';
+
+type TabKey = 'menu' | 'info' | 'reviews' | 'deals';
+
+const normalizePrice = (value: any) => Number.parseFloat(String(value || 0)) || 0;
 
 const RestaurantScreen = ({ route, navigation }: any) => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
+  const { addItem } = useCart();
   const theme = useContext(ThemeContext);
   if (!theme) throw new Error('ThemeContext must be used within ThemeProvider');
-  const { colors } = theme;
-  
+
   const [restaurant, setRestaurant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('menu');
-  const [quantity, setQuantity] = useState(1);
-  const [showReservationModal, setShowReservationModal] = useState(false);
-  const [reservationDetails, setReservationDetails] = useState({
-    date: '',
-    time: '',
-    guests: '2',
-    specialRequests: ''
-  });
-  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
-  const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [deliveryInstructions, setDeliveryInstructions] = useState('');
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [activeTab, setActiveTab] = useState<TabKey>('menu');
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
-  const [menuLoading, setMenuLoading] = useState(false);
-  const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [eventsLoading, setEventsLoading] = useState(false);
+  const [showReservationModal, setShowReservationModal] = useState(false);
+  const [reservationStep, setReservationStep] = useState(1);
+  const [reservationDetails, setReservationDetails] = useState({
+    date: new Date().toISOString().split('T')[0],
+    time: '19:00',
+    guests: '2',
+    specialRequests: '',
+  });
 
-  // Fetch restaurant data from API
   useEffect(() => {
     const fetchRestaurant = async () => {
       try {
         setLoading(true);
-        setError(null);
         const result = await restaurantAPI.getById(route.params.id);
-        
         if (result.success && result.restaurant) {
           const r = result.restaurant;
           setRestaurant({
             id: r.id,
             name: r.name,
-            image: r.images && r.images.length > 0 ? { uri: r.images[0] } : placeholderImages.restaurant,
-            rating: parseFloat(r.rating) || 0,
-            category: r.category,
-            deliveryTime: r.deliveryTime || '20-30 min',
-            price: r.priceRange || 'Ksh',
-            address: r.address || 'Address not available',
-            phone: r.phone || 'Phone not available',
-            hours: r.hours || null,
-            hoursFormatted: r.hours ? formatHours(r.hours) : 'Hours not available',
-            description: r.description || 'No description available',
-            dressCode: r.dressCode || null,
-            dressCodeAiGenerated: r.dressCodeAiGenerated || false
+            rating: Number.parseFloat(r.rating) || 4.6,
+            category: r.category || 'Restaurant',
+            price: r.priceRange || 'KES 800-1,500',
+            address: r.address || 'Westlands, Nairobi',
+            phone: r.phone || '+254700000000',
+            hoursFormatted: typeof r.hours === 'string' ? r.hours : 'Open today · 10:00 - 23:00',
+            description: r.description || 'A curated Nairobi dining spot for reservations, deals, and table bookings.',
+            neighborhood: r.neighborhood || 'Westlands',
           });
         } else {
-          // Fallback to route params or dummy data if API fails
-          const fallbackRestaurant = dummyRestaurants.find(r => r.id === route.params.id) || {
-    id: route.params.id,
-            name: route.params.name || 'Restaurant',
-            image: route.params.image || placeholderImages.restaurant,
-            rating: route.params.rating || 4.8,
-            category: route.params.category || 'Italian',
-            deliveryTime: route.params.deliveryTime || '20-30 min',
-            price: route.params.price || 'Ksh',
-            address: 'Address not available',
-            phone: 'Phone not available',
-            hours: 'Hours not available',
-            description: 'No description available'
-          };
-          setRestaurant(fallbackRestaurant);
+          const fallback = dummyRestaurants.find((r) => r.id === route.params.id) || dummyRestaurants[0];
+          setRestaurant({ ...fallback, address: fallback?.address || 'Westlands, Nairobi', phone: '+254700000000' });
         }
-      } catch (err) {
-        console.error('Error fetching restaurant:', err);
-        // Fallback to route params or dummy data
-        const fallbackRestaurant = dummyRestaurants.find(r => r.id === route.params.id) || {
-          id: route.params.id,
-          name: route.params.name || 'Restaurant',
-          image: route.params.image || placeholderImages.restaurant,
-          rating: route.params.rating || 4.8,
-          category: route.params.category || 'Italian',
-          deliveryTime: route.params.deliveryTime || '20-30 min',
-          price: route.params.price || 'Ksh',
-          address: 'Address not available',
-          phone: 'Phone not available',
-          hours: 'Hours not available',
-          description: 'No description available'
-        };
-        setRestaurant(fallbackRestaurant);
+      } catch (error) {
+        console.error('Error fetching restaurant:', error);
+        const fallback = dummyRestaurants.find((r) => r.id === route.params.id) || dummyRestaurants[0];
+        setRestaurant({ ...fallback, id: route.params.id, name: route.params.name || fallback?.name || 'The Rooftop Kitchen', address: 'Westlands, Nairobi', phone: '+254700000000' });
       } finally {
         setLoading(false);
       }
     };
 
     fetchRestaurant();
-  }, [route.params.id]);
+  }, [route.params.id, route.params.name]);
 
-  // Fetch menu when restaurant is loaded with dummy data fallback
   useEffect(() => {
-    if (restaurant?.id) {
-      const fetchMenu = async () => {
-        try {
-          setMenuLoading(true);
-          const result = await menuAPI.getRestaurantMenu(restaurant.id);
-          if (result.success && result.menuItems && result.menuItems.length > 0) {
-            setMenuItems(result.menuItems);
-          } else {
-            // Use dummy data if API returns empty or fails
-            console.log('Using dummy menu data');
-            setMenuItems(dummyMenuItems);
-          }
-        } catch (err) {
-          console.error('Error fetching menu:', err);
-          // Use dummy data on error
-          console.log('API error, using dummy menu data');
-          setMenuItems(dummyMenuItems);
-        } finally {
-          setMenuLoading(false);
-        }
-      };
-      fetchMenu();
-    }
+    if (!restaurant?.id) return;
+
+    const fetchSupportingData = async () => {
+      try {
+        const menuResult = await menuAPI.getRestaurantMenu(restaurant.id);
+        setMenuItems(menuResult.success && menuResult.menuItems?.length ? menuResult.menuItems : dummyMenuItems);
+      } catch (error) {
+        console.error('Error fetching menu:', error);
+        setMenuItems(dummyMenuItems);
+      }
+
+      try {
+        const reviewResult = await reviewAPI.getRestaurantReviews(restaurant.id, 1, 8);
+        setReviews(reviewResult.success && reviewResult.reviews?.length ? reviewResult.reviews.map((review: any) => ({
+          id: review.id,
+          user: review.user?.name || 'Guest',
+          rating: review.rating || 5,
+          date: new Date(review.createdAt || Date.now()).toLocaleDateString(),
+          comment: review.comment || '',
+        })) : dummyReviews);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        setReviews(dummyReviews);
+      }
+
+      try {
+        const dealResult = await dealAPI.getByRestaurant(restaurant.id);
+        setDeals(dealResult.success ? dealResult.data : []);
+      } catch (error) {
+        console.error('Error fetching deals:', error);
+        setDeals([]);
+      }
+    };
+
+    fetchSupportingData();
   }, [restaurant?.id]);
 
-  // Fetch reviews when restaurant is loaded with dummy data fallback
-  useEffect(() => {
-    if (restaurant?.id) {
-      const fetchReviews = async () => {
-        try {
-          setReviewsLoading(true);
-          const result = await reviewAPI.getRestaurantReviews(restaurant.id, 1, 10);
-          if (result.success && result.reviews && result.reviews.length > 0) {
-            setReviews(result.reviews.map((r: any) => ({
-              id: r.id,
-              user: r.user?.name || 'Anonymous',
-              rating: r.rating,
-              date: new Date(r.createdAt).toLocaleDateString(),
-              comment: r.comment || '',
-              photos: r.photos || []
-            })));
-          } else {
-            // Use dummy data if API returns empty or fails
-            console.log('Using dummy review data');
-            setReviews(dummyReviews);
-          }
-        } catch (err) {
-          console.error('Error fetching reviews:', err);
-          // Use dummy data on error
-          console.log('API error, using dummy review data');
-          setReviews(dummyReviews);
-        } finally {
-          setReviewsLoading(false);
-        }
-      };
-      fetchReviews();
-    }
-  }, [restaurant?.id]);
+  const menuByCategory = menuItems.reduce<Record<string, any[]>>((groups, item) => {
+    const category = item.category || 'Mains';
+    groups[category] = groups[category] || [];
+    groups[category].push(item);
+    return groups;
+  }, {});
 
-  // Fetch events when restaurant is loaded
-  useEffect(() => {
-    if (restaurant?.id) {
-      const fetchEvents = async () => {
-        try {
-          setEventsLoading(true);
-          const result = await eventAPI.getAll({ restaurantId: restaurant.id, limit: 10 });
-          if (result.success && result.data) {
-            setEvents(result.data);
-          }
-        } catch (err) {
-          console.error('Error fetching events:', err);
-        } finally {
-          setEventsLoading(false);
-        }
-      };
-      fetchEvents();
-    }
-  }, [restaurant?.id]);
-
-  // Fetch deals when restaurant is loaded
-  useEffect(() => {
-    if (restaurant?.id) {
-      const fetchDeals = async () => {
-        try {
-          const result = await dealAPI.getByRestaurant(restaurant.id);
-          if (result.success && result.data) {
-            setDeals(result.data);
-          }
-        } catch (err) {
-          console.error('Error fetching deals:', err);
-        }
-      };
-      fetchDeals();
-    }
-  }, [restaurant?.id]);
-
-  const formatHours = (hours: any): string => {
-    if (typeof hours === 'string') return hours;
-    if (typeof hours === 'object') {
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      return days.map(day => {
-        const dayName = day.charAt(0).toUpperCase() + day.slice(1);
-        return `${dayName}: ${hours[day] || 'Closed'}`;
-      }).join('\n');
-    }
-    return 'Hours not available';
-  };
-
-  // Check if restaurant is open now
-  const isOpenNow = (hours: any): boolean => {
-    if (!hours || typeof hours !== 'object') return false;
-    
-    const now = new Date();
-    const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
-    const todayHours = hours[dayOfWeek];
-    
-    if (!todayHours || todayHours === 'Closed') return false;
-    
-    // Parse hours (format: "HH:MM - HH:MM")
-    const [openTime, closeTime] = todayHours.split(' - ');
-    if (!openTime || !closeTime) return false;
-    
-    const [openHour, openMin] = openTime.split(':').map(Number);
-    const [closeHour, closeMin] = closeTime.split(':').map(Number);
-    
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    const openMinutes = openHour * 60 + openMin;
-    const closeMinutes = closeHour * 60 + closeMin;
-    
-    return nowMinutes >= openMinutes && nowMinutes <= closeMinutes;
-  };
-
-  // Handle WhatsApp contact
-  const handleWhatsApp = (phone: string) => {
-    if (!phone) {
-      Alert.alert('Error', 'Phone number not available');
-      return;
-    }
-    
-    // Remove any non-digit characters except +
-    const cleanPhone = phone.replace(/[^\d+]/g, '');
-    const whatsappUrl = `whatsapp://send?phone=${cleanPhone}`;
-    
-    Linking.canOpenURL(whatsappUrl)
-      .then((supported) => {
-        if (supported) {
-          Linking.openURL(whatsappUrl);
-        } else {
-          // Fallback to web WhatsApp
-          const webUrl = `https://wa.me/${cleanPhone}`;
-          Linking.openURL(webUrl);
-        }
-      })
-      .catch((err) => {
-        console.error('Error opening WhatsApp:', err);
-        Alert.alert('Error', 'Failed to open WhatsApp');
-      });
-  };
-
-  // Handle phone call
-  const handleCall = (phone: string) => {
-    if (!phone) {
-      Alert.alert('Error', 'Phone number not available');
-      return;
-    }
-    
-    const phoneUrl = `tel:${phone}`;
-    Linking.openURL(phoneUrl).catch((err) => {
-      console.error('Error making call:', err);
-      Alert.alert('Error', 'Failed to make call');
+  const addMenuItem = async (item: any) => {
+    if (!restaurant) return;
+    await addItem({
+      menuItemId: item.id,
+      restaurantId: restaurant.id,
+      restaurantName: restaurant.name,
+      name: item.name,
+      price: normalizePrice(item.price),
+      quantity: 1,
+      image: typeof item.image === 'string' ? item.image : undefined,
     });
+    Alert.alert('Added to Cart', `${item.name} has been added.`, [
+      { text: 'Keep browsing', style: 'cancel' },
+      { text: 'Cart', onPress: () => navigation.navigate('Cart') },
+    ]);
   };
 
-  const handleReservation = () => {
-    // In a real app, you would send this to your backend
-    console.log('Reservation details:', reservationDetails);
-    setShowReservationModal(false);
-    alert(`Reservation confirmed for kes{reservationDetails.date} at kes{reservationDetails.time} for kes{reservationDetails.guests} guests.`);
+  const handleReservation = async () => {
+    if (!user) {
+      setReservationStep(3);
+      return;
+    }
+
+    try {
+      const result = await reservationAPI.createReservation(restaurant.id, {
+        date: reservationDetails.date,
+        time: reservationDetails.time,
+        partySize: Number.parseInt(reservationDetails.guests, 10) || 2,
+        specialRequests: reservationDetails.specialRequests,
+      });
+
+      if (!result.success) {
+        Alert.alert('Reservation Failed', result.message || 'Unable to create reservation.');
+        return;
+      }
+      setReservationStep(3);
+    } catch (error) {
+      console.error('Reservation error:', error);
+      setReservationStep(3);
+    }
   };
 
-  const handleDelivery = () => {
-    // In a real app, you would send this to your backend
-    console.log('Delivery details:', { deliveryAddress, deliveryInstructions });
-    setShowDeliveryModal(false);
-    alert(`Delivery order placed! Your food will arrive in 30-45 minutes.`);
+  const callRestaurant = () => {
+    if (!restaurant?.phone) return;
+    Linking.openURL(`tel:${restaurant.phone}`).catch(() => Alert.alert('Error', 'Failed to open phone app'));
   };
 
-  const renderMenuItem = ({ item }) => {
-    // Handle both string URLs and require() objects for images
-    const itemImage = typeof item.image === 'string' 
-      ? { uri: item.image } 
-      : (item.image || placeholderImages.dish);
-    
-    return (
-    <TouchableOpacity 
-      style={styles.menuItem}
-      onPress={() => setSelectedItem(item)}
-    >
-      <Image source={itemImage} style={styles.menuItemImage} />
-      <View style={styles.menuItemInfo}>
-        <Text style={styles.menuItemName}>{item.name}</Text>
-        <Text style={styles.menuItemDescription}>{item.description}</Text>
-        <Text style={styles.menuItemPrice}>Ksh {parseFloat(item.price).toFixed(2)}</Text>
-      </View>
-      <View style={styles.menuItemRating}>
-        <Ionicons name="star" size={16} color="#FFD700" />
-        <Text style={styles.ratingText}>{item.rating}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const openReservation = () => {
+    setReservationStep(1);
+    setShowReservationModal(true);
   };
-
-  const styles = createStyles(colors);
-
-  const renderReview = ({ item }) => (
-    <View style={styles.reviewItem}>
-      <View style={styles.reviewHeader}>
-        <Text style={styles.reviewUser}>{item.user}</Text>
-        <View style={styles.reviewRating}>
-          {[...Array(5)].map((_, i) => (
-            <Ionicons 
-              key={i} 
-              name={i < item.rating ? "star" : "star-outline"} 
-              size={16} 
-              color="#FFD700" 
-            />
-          ))}
-        </View>
-      </View>
-      <Text style={styles.reviewDate}>{item.date}</Text>
-      <Text style={styles.reviewComment}>{item.comment}</Text>
-    </View>
-  );
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={PRIMARY} />
         <Text style={styles.loadingText}>Loading restaurant...</Text>
       </View>
     );
@@ -371,1006 +195,322 @@ const RestaurantScreen = ({ route, navigation }: any) => {
 
   if (!restaurant) {
     return (
-      <View style={[styles.container, styles.errorContainer]}>
-        <Text style={styles.errorText}>{error || 'Restaurant not found'}</Text>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>Go Back</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Restaurant not found.</Text>
+        <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.primaryButtonText}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Image source={restaurant.image} style={styles.restaurantImage} />
-      
-      <View style={styles.restaurantHeader}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.favoriteButton}>
-          <Ionicons 
-            name={user?.favorites?.includes(restaurant.id) ? "heart" : "heart-outline"} 
-            size={28} 
-            color={user?.favorites?.includes(restaurant.id) ? colors.primary : "#fff"} 
-          />
-        </TouchableOpacity>
-      </View>
-      
-      <View style={styles.restaurantInfo}>
-        <Text style={styles.restaurantName}>{restaurant.name}</Text>
-        <View style={styles.restaurantMeta}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16} color="#FFD700" />
-            <Text style={styles.ratingText}>{restaurant.rating}</Text>
+    <View style={styles.shell}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <View style={styles.statusRow}>
+            <Text style={styles.statusText}>9:43</Text>
+            <Ionicons name="battery-half" size={15} color="#FFFFFF" />
           </View>
-          <Text style={styles.dot}>•</Text>
-          <Text style={styles.categoryText}>{restaurant.category}</Text>
-          <Text style={styles.dot}>•</Text>
-          <Text style={styles.priceText}>{restaurant.price}</Text>
+          <View style={styles.backRow}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+            <View style={styles.headerCopy}>
+              <Text style={styles.headerTitle} numberOfLines={1}>{restaurant.name}</Text>
+              <Text style={styles.headerSubtitle}>{restaurant.neighborhood || restaurant.address} · 1.2km away</Text>
+            </View>
+            <TouchableOpacity style={styles.headerCircle}>
+              <Ionicons name={user?.favorites?.includes(restaurant.id) ? 'heart' : 'heart-outline'} size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.deliveryTimeRow}>
-        <Text style={styles.deliveryTime}>
-          <Ionicons name="time-outline" size={16} color="#666" /> {restaurant.deliveryTime}
-        </Text>
-          {restaurant.hours && isOpenNow(restaurant.hours) && (
-            <View style={styles.openNowBadge}>
-              <View style={styles.openNowDot} />
-              <Text style={styles.openNowText}>Open Now</Text>
-            </View>
-          )}
-        </View>
-      </View>
-      
-      <View style={styles.tabs}>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'menu' && styles.activeTab]}
-          onPress={() => setActiveTab('menu')}
-        >
-          <Text style={[styles.tabText, activeTab === 'menu' && styles.activeTabText]}>Menu</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'info' && styles.activeTab]}
-          onPress={() => setActiveTab('info')}
-        >
-          <Text style={[styles.tabText, activeTab === 'info' && styles.activeTabText]}>Info</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'reviews' && styles.activeTab]}
-          onPress={() => setActiveTab('reviews')}
-        >
-          <Text style={[styles.tabText, activeTab === 'reviews' && styles.activeTabText]}>Reviews</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'events' && styles.activeTab]}
-          onPress={() => setActiveTab('events')}
-        >
-          <Text style={[styles.tabText, activeTab === 'events' && styles.activeTabText]}>Events</Text>
-        </TouchableOpacity>
-      </View>
-      
-      {activeTab === 'menu' && (
-        <View style={styles.menuContainer}>
-          {menuLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={colors.primary} />
-              <Text style={styles.loadingText}>Loading menu...</Text>
-            </View>
-          ) : menuItems.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No menu items available</Text>
-            </View>
-          ) : (
-          <FlatList
-            data={menuItems}
-            renderItem={renderMenuItem}
-            keyExtractor={item => item.id}
-            scrollEnabled={false}
-          />
-          )}
-        </View>
-      )}
-      
-      {activeTab === 'info' && (
-        <View style={styles.infoContainer}>
-          <View style={styles.infoSection}>
-            <Ionicons name="location-outline" size={24} color={colors.primary} />
-            <View style={styles.infoText}>
-              <Text style={styles.infoTitle}>Address</Text>
-              <Text style={styles.infoContent}>{restaurant.address}</Text>
-            </View>
-          </View>
-          
-          <View style={styles.infoSection}>
-            <Ionicons name="call-outline" size={24} color={colors.primary} />
-            <View style={styles.infoText}>
-              <Text style={styles.infoTitle}>Phone</Text>
-              <Text style={styles.infoContent}>{restaurant.phone}</Text>
-              <View style={styles.contactButtons}>
-                <TouchableOpacity 
-                  style={[styles.contactButton, { backgroundColor: colors.primary }]}
-                  onPress={() => handleCall(restaurant.phone)}
-                >
-                  <Ionicons name="call" size={16} color="#fff" />
-                  <Text style={styles.contactButtonText}>Call</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.contactButton, { backgroundColor: colors.success }]}
-                  onPress={() => handleWhatsApp(restaurant.phone)}
-                >
-                  <Ionicons name="logo-whatsapp" size={16} color="#fff" />
-                  <Text style={styles.contactButtonText}>WhatsApp</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-          
-          <View style={styles.infoSection}>
-            <Ionicons name="time-outline" size={24} color={colors.primary} />
-            <View style={styles.infoText}>
-              <Text style={styles.infoTitle}>Hours</Text>
-              <Text style={styles.infoContent}>{restaurant.hoursFormatted || restaurant.hours || 'Hours not available'}</Text>
-            </View>
-          </View>
-          
-          <View style={styles.infoSection}>
-            <Ionicons name="information-circle-outline" size={24} color={colors.primary} />
-            <View style={styles.infoText}>
-              <Text style={styles.infoTitle}>About</Text>
-              <Text style={styles.infoContent}>{restaurant.description}</Text>
-            </View>
-          </View>
 
-          {restaurant.dressCode && (
-            <View style={styles.dressCodeSection}>
-              <View style={styles.dressCodeHeader}>
-                <Ionicons name="shirt-outline" size={24} color={colors.primary} />
-                <Text style={styles.dressCodeTitle}>Dress Code</Text>
-                {restaurant.dressCodeAiGenerated && (
-                  <View style={styles.aiBadge}>
-                    <Ionicons name="sparkles" size={12} color="#FFFFFF" />
-                    <Text style={styles.aiBadgeText}>AI</Text>
-                  </View>
-                )}
-              </View>
-              <Text style={styles.dressCodeValue}>{restaurant.dressCode}</Text>
-            </View>
-          )}
+        <View style={styles.tabBar}>
+          {[
+            ['menu', 'Menu'],
+            ['info', 'Info'],
+            ['reviews', 'Reviews'],
+            ['deals', 'Deals'],
+          ].map(([key, label]) => (
+            <TouchableOpacity key={key} style={[styles.tab, activeTab === key && styles.tabActive]} onPress={() => setActiveTab(key as TabKey)}>
+              <Text style={[styles.tabText, activeTab === key && styles.tabTextActive]}>{label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      )}
-      
-      {activeTab === 'reviews' && (
-        <View style={styles.reviewsContainer}>
-          <View style={styles.overallRating}>
-            <Text style={styles.overallRatingText}>{restaurant.rating.toFixed(1)}</Text>
-            <View style={styles.stars}>
-              {[...Array(5)].map((_, i) => (
-                <Ionicons 
-                  key={i} 
-                  name={i < Math.floor(restaurant.rating) ? "star" : "star-outline"} 
-                  size={24} 
-                  color="#FFD700" 
-                />
-              ))}
-            </View>
-            <Text style={styles.totalReviews}>{reviews.length} reviews</Text>
-          </View>
-          
-          {reviewsLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={colors.primary} />
-              <Text style={styles.loadingText}>Loading reviews...</Text>
-            </View>
-          ) : reviews.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No reviews yet</Text>
-            </View>
-          ) : (
-          <FlatList
-            data={reviews}
-            renderItem={renderReview}
-            keyExtractor={item => item.id}
-            scrollEnabled={false}
-          />
-          )}
-          
-          <TouchableOpacity style={styles.addReviewButton}>
-            <Text style={styles.addReviewButtonText}>Write a Review</Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
-      {activeTab === 'events' && (
-        <View style={styles.eventsContainer}>
-          {eventsLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={colors.primary} />
-              <Text style={styles.loadingText}>Loading events...</Text>
-            </View>
-          ) : events.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="calendar-outline" size={64} color={colors.textLight} />
-              <Text style={styles.emptyText}>No upcoming events</Text>
-              <Text style={styles.emptySubtext}>Check back later for new events</Text>
-            </View>
-          ) : (
+        <View style={styles.content}>
+          {activeTab === 'menu' && (
             <>
-              {deals.length > 0 && (
-                <View style={styles.dealsSection}>
-                  <Text style={styles.sectionTitle}>Today's Deals</Text>
-                  {deals.slice(0, 3).map((deal) => (
-                    <View key={deal.id} style={styles.dealCard}>
-                      <View style={styles.dealContent}>
-                        <Text style={styles.dealTitle}>{deal.title}</Text>
-                        {deal.description && (
-                          <Text style={styles.dealDescription}>{deal.description}</Text>
-                        )}
-                        {deal.discount && (
-                          <Text style={styles.dealDiscount}>{deal.discount}</Text>
-                        )}
+              {Object.entries(menuByCategory).slice(0, 4).map(([category, items]) => (
+                <View key={category} style={styles.menuCard}>
+                  <Text style={styles.menuSection}>{category}</Text>
+                  {items.slice(0, 4).map((item) => (
+                    <TouchableOpacity key={item.id} style={styles.menuItem} onPress={() => addMenuItem(item)}>
+                      <View style={styles.menuItemCopy}>
+                        <Text style={styles.menuItemName}>{item.name}</Text>
+                        <Text style={styles.menuItemDesc} numberOfLines={1}>{item.description || 'Freshly prepared by the kitchen'}</Text>
                       </View>
-                    </View>
+                      <Text style={styles.menuPrice}>KES {normalizePrice(item.price).toLocaleString()}</Text>
+                    </TouchableOpacity>
                   ))}
                 </View>
-              )}
-              <Text style={styles.sectionTitle}>Upcoming Events</Text>
-              <FlatList
-                data={events}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.eventCard}
-                    onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
-                  >
-                    <View style={styles.eventCardContent}>
-                      <Text style={styles.eventCardTitle}>{item.title}</Text>
-                      <View style={styles.eventCardMeta}>
-                        <Ionicons name="calendar-outline" size={14} color={colors.textLight} />
-                        <Text style={styles.eventCardDate}>
-                          {new Date(item.date).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </Text>
-                        <Ionicons name="time-outline" size={14} color={colors.textLight} style={styles.eventCardIcon} />
-                        <Text style={styles.eventCardTime}>{item.time.substring(0, 5)}</Text>
-                      </View>
-                      {item.price ? (
-                        <Text style={styles.eventCardPrice}>KES {item.price}</Text>
-                      ) : (
-                        <Text style={[styles.eventCardPrice, { color: colors.success }]}>Free</Text>
-                      )}
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item) => item.id}
-                scrollEnabled={false}
-              />
+              ))}
+              <View style={styles.budgetEstimate}>
+                <Ionicons name="calculator-outline" size={22} color={PRIMARY} />
+                <View>
+                  <Text style={styles.budgetTitle}>Budget estimate</Text>
+                  <Text style={styles.budgetValue}>Starter + main ≈ KES 1,250 / person</Text>
+                </View>
+              </View>
+            </>
+          )}
+
+          {activeTab === 'info' && (
+            <View style={styles.menuCard}>
+              <InfoRow icon="location-outline" title="Address" value={restaurant.address} />
+              <InfoRow icon="time-outline" title="Hours" value={restaurant.hoursFormatted || 'Open today · 10:00 - 23:00'} />
+              <InfoRow icon="restaurant-outline" title="Cuisine" value={`${restaurant.category || 'Restaurant'} · ${restaurant.price || 'KES 800-1,500'}`} />
+              <Text style={styles.aboutText}>{restaurant.description}</Text>
+              <TouchableOpacity style={styles.secondaryButton} onPress={callRestaurant}>
+                <Ionicons name="call" size={18} color={PRIMARY} />
+                <Text style={styles.secondaryButtonText}>Call restaurant</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {activeTab === 'reviews' && (
+            <>
+              <View style={styles.ratingPanel}>
+                <Text style={styles.ratingBig}>{Number(restaurant.rating || 4.6).toFixed(1)}</Text>
+                <Text style={styles.ratingMeta}>{reviews.length} reviews · Loved by diners</Text>
+              </View>
+              {reviews.map((review) => (
+                <View key={review.id} style={styles.reviewCard}>
+                  <View style={styles.reviewHeader}>
+                    <Text style={styles.reviewUser}>{review.user}</Text>
+                    <Text style={styles.reviewStars}>★ {review.rating}</Text>
+                  </View>
+                  <Text style={styles.reviewDate}>{review.date}</Text>
+                  <Text style={styles.reviewComment}>{review.comment || 'Great food and smooth booking experience.'}</Text>
+                </View>
+              ))}
+            </>
+          )}
+
+          {activeTab === 'deals' && (
+            <>
+              <View style={styles.happyHourBand}>
+                <Text style={styles.livePill}>Live</Text>
+                <View>
+                  <Text style={styles.happyTitle}>Happy hour available</Text>
+                  <Text style={styles.happySub}>Ask for today’s table-only offer before checkout.</Text>
+                </View>
+              </View>
+              {(deals.length ? deals : [{ id: 'fallback', title: '2-for-1 lunch combo', description: 'Save on a meal for two.', discount: 'Save 50%' } as any]).map((deal) => (
+                <View key={deal.id} style={styles.dealCard}>
+                  <View>
+                    <Text style={styles.dealTitle}>{deal.title}</Text>
+                    <Text style={styles.dealDesc}>{deal.description || 'Limited time restaurant offer.'}</Text>
+                  </View>
+                  <Text style={styles.dealDiscount}>{deal.discount || 'Claim'}</Text>
+                </View>
+              ))}
             </>
           )}
         </View>
-      )}
-      
-      <View style={styles.actionButtons}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.reservationButton]}
-          onPress={() => setShowReservationModal(true)}
-        >
-          <Ionicons name="calendar-outline" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>Reserve</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.deliveryButton]}
-          onPress={() => setShowDeliveryModal(true)}
-        >
-          <Ionicons name="bicycle-outline" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>Order Delivery</Text>
+
+        <View style={{ height: 104 }} />
+      </ScrollView>
+
+      <View style={styles.stickyCta}>
+        <TouchableOpacity style={styles.primaryButton} onPress={openReservation}>
+          <Text style={styles.primaryButtonText}>Reserve a table</Text>
         </TouchableOpacity>
       </View>
-      
-      {/* Reservation Modal */}
-      <Modal
+
+      <ReservationModal
         visible={showReservationModal}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Make a Reservation</Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Date</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Select date"
-                value={reservationDetails.date}
-                onChangeText={text => setReservationDetails({...reservationDetails, date: text})}
-              />
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Time</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Select time"
-                value={reservationDetails.time}
-                onChangeText={text => setReservationDetails({...reservationDetails, time: text})}
-              />
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Number of Guests</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="2"
-                value={reservationDetails.guests}
-                onChangeText={text => setReservationDetails({...reservationDetails, guests: text})}
-                keyboardType="numeric"
-              />
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Special Requests</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Any special requests?"
-                value={reservationDetails.specialRequests}
-                onChangeText={text => setReservationDetails({...reservationDetails, specialRequests: text})}
-                multiline
-              />
-            </View>
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowReservationModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleReservation}
-              >
-                <Text style={styles.confirmButtonText}>Confirm Reservation</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      
-      {/* Delivery Modal */}
-      <Modal
-        visible={showDeliveryModal}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Order Delivery</Text>
-            
-            {selectedItem && (
-              <View style={styles.selectedItemContainer}>
-                <Text style={styles.selectedItemText}>Selected Item: {selectedItem.name}</Text>
-                <View style={styles.quantitySelector}>
-                  <TouchableOpacity 
-                    style={styles.quantityButton}
-                    onPress={() => setQuantity(Math.max(1, quantity - 1))}
-                  >
-                    <Ionicons name="remove" size={20} color={colors.primary} />
-                  </TouchableOpacity>
-                  <Text style={styles.quantityText}>{quantity}</Text>
-                  <TouchableOpacity 
-                    style={styles.quantityButton}
-                    onPress={() => setQuantity(quantity + 1)}
-                  >
-                    <Ionicons name="add" size={20} color={colors.primary} />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.itemPrice}>Total: Ksh {(parseFloat(selectedItem.price) * quantity).toFixed(2)}</Text>
-              </View>
-            )}
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Delivery Address</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your delivery address"
-                value={deliveryAddress}
-                onChangeText={setDeliveryAddress}
-              />
-            </View>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Delivery Instructions</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Any special instructions for delivery?"
-                value={deliveryInstructions}
-                onChangeText={setDeliveryInstructions}
-                multiline
-              />
-            </View>
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowDeliveryModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleDelivery}
-              >
-                <Text style={styles.confirmButtonText}>Place Order</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </ScrollView>
+        step={reservationStep}
+        restaurantName={restaurant.name}
+        details={reservationDetails}
+        setDetails={setReservationDetails}
+        onClose={() => setShowReservationModal(false)}
+        onNext={() => setReservationStep(2)}
+        onConfirm={handleReservation}
+        onDone={() => {
+          setShowReservationModal(false);
+          navigation.navigate('Bookings');
+        }}
+      />
+    </View>
   );
 };
 
-const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  restaurantImage: {
-    width: '100%',
-    height: 250,
-  },
-  restaurantHeader: {
-    position: 'absolute',
-    top: 40,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  backButton: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 20,
-    padding: 5,
-  },
-  favoriteButton: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 20,
-    padding: 5,
-  },
-  restaurantInfo: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  restaurantName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  restaurantMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,140,0,0.1)',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  ratingText: {
-    marginLeft: 3,
-    fontSize: 14,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  dot: {
-    marginHorizontal: 8,
-    color: '#999',
-  },
-  categoryText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  priceText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  deliveryTime: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 5,
-  },
-  tabs: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 15,
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '600',
-  },
-  activeTabText: {
-    color: colors.primary,
-  },
-  menuContainer: {
-    padding: 20,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  menuItemImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 15,
-  },
-  menuItemInfo: {
-    flex: 1,
-  },
-  menuItemName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  menuItemDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-  },
-  menuItemPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  menuItemRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  infoContainer: {
-    padding: 20,
-  },
-  infoSection: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  infoText: {
-    flex: 1,
-    marginLeft: 15,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  infoContent: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
-  reviewsContainer: {
-    padding: 20,
-  },
-  overallRating: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  overallRatingText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  stars: {
-    flexDirection: 'row',
-    marginVertical: 5,
-  },
-  totalReviews: {
-    fontSize: 14,
-    color: '#666',
-  },
-  reviewItem: {
-    marginBottom: 20,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-  },
-  reviewUser: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  reviewRating: {
-    flexDirection: 'row',
-  },
-  reviewDate: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 5,
-  },
-  reviewComment: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
-  addReviewButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 25,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  addReviewButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    padding: 20,
-    paddingTop: 10,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-    padding: 15,
-    marginHorizontal: 5,
-  },
-  reservationButton: {
-    backgroundColor: colors.primary,
-  },
-  deliveryButton: {
-    backgroundColor: colors.primary,
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    margin: 20,
-    borderRadius: 15,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  inputGroup: {
-    marginBottom: 15,
-  },
-  inputLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-    fontWeight: '600',
-  },
-  input: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 16,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  modalButton: {
-    flex: 1,
-    borderRadius: 10,
-    padding: 15,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#F5F5F5',
-    marginRight: 10,
-  },
-  confirmButton: {
-    backgroundColor: colors.primary,
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontWeight: 'bold',
-  },
-  confirmButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  selectedItemContainer: {
-    backgroundColor: '#FFF9F2',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-  },
-  selectedItemText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 10,
-  },
-  quantitySelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  quantityButton: {
-    backgroundColor: '#FFEEDD',
-    borderRadius: 20,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quantityText: {
-    marginHorizontal: 15,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  itemPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: colors.textLight,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorText: {
-    color: colors.error,
-    textAlign: 'center',
-    marginBottom: 20,
-    fontSize: 16,
-  },
-  backButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  emptyContainer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  emptyText: {
-    color: colors.textLight,
-    fontSize: 16,
-  },
-  emptySubtext: {
-    color: colors.textLight,
-    fontSize: 14,
-    marginTop: 8,
-    opacity: 0.7,
-  },
-  deliveryTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 5,
-  },
-  openNowBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.success + '20',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  openNowDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.success,
-    marginRight: 6,
-  },
-  openNowText: {
-    fontSize: 12,
-    color: colors.success,
-    fontWeight: '600',
-  },
-  contactButtons: {
-    flexDirection: 'row',
-    marginTop: 8,
-    gap: 8,
-  },
-  contactButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    gap: 4,
-  },
-  contactButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  eventsContainer: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
-    marginTop: 8,
-  },
-  dealsSection: {
-    marginBottom: 24,
-  },
-  dealCard: {
-    backgroundColor: '#FFF9F2',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
-  },
-  dealContent: {
-    flex: 1,
-  },
-  dealTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  dealDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  dealDiscount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  eventCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  eventCardContent: {
-    flex: 1,
-  },
-  eventCardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  eventCardMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  eventCardDate: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
-  },
-  eventCardIcon: {
-    marginLeft: 12,
-  },
-  eventCardTime: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
-  },
-  eventCardPrice: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.primary,
-    marginTop: 4,
-  },
-  dressCodeSection: {
-    marginTop: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.primary + '30',
-  },
-  dressCodeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    backgroundColor: colors.primary + '15',
-  },
-  dressCodeTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginLeft: 8,
-    flex: 1,
-  },
-  aiBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  aiBadgeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  dressCodeValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.primary,
-    padding: 12,
-  },
+const InfoRow = ({ icon, title, value }: { icon: any; title: string; value: string }) => (
+  <View style={styles.infoRow}>
+    <Ionicons name={icon} size={22} color={PRIMARY} />
+    <View style={styles.infoCopy}>
+      <Text style={styles.infoTitle}>{title}</Text>
+      <Text style={styles.infoValue}>{value}</Text>
+    </View>
+  </View>
+);
+
+const ReservationModal = ({ visible, step, restaurantName, details, setDetails, onClose, onNext, onConfirm, onDone }: any) => (
+  <Modal visible={visible} animationType="slide" transparent>
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalCard}>
+        <View style={styles.stepBar}>
+          {[1, 2, 3].map((item) => (
+            <View key={item} style={styles.stepGroup}>
+              <View style={[styles.stepCircle, step >= item && styles.stepCircleActive]}><Text style={[styles.stepText, step >= item && styles.stepTextActive]}>{item}</Text></View>
+              <Text style={styles.stepLabel}>{item === 1 ? 'Time' : item === 2 ? 'Details' : 'Done'}</Text>
+            </View>
+          ))}
+        </View>
+
+        {step === 1 && (
+          <View style={styles.modalBody}>
+            <Text style={styles.modalTitle}>Reserve a table</Text>
+            <Text style={styles.modalSub}>{restaurantName}</Text>
+            <TextInput style={styles.input} value={details.date} onChangeText={(date) => setDetails({ ...details, date })} placeholder="YYYY-MM-DD" />
+            <TextInput style={styles.input} value={details.time} onChangeText={(time) => setDetails({ ...details, time })} placeholder="19:00" />
+            <View style={styles.guestRow}>
+              <Text style={styles.guestLabel}>Guests</Text>
+              <TextInput style={styles.guestInput} value={details.guests} onChangeText={(guests) => setDetails({ ...details, guests })} keyboardType="numeric" />
+            </View>
+            <TouchableOpacity style={styles.primaryButton} onPress={onNext}><Text style={styles.primaryButtonText}>Continue</Text></TouchableOpacity>
+          </View>
+        )}
+
+        {step === 2 && (
+          <View style={styles.modalBody}>
+            <Text style={styles.modalTitle}>Booking details</Text>
+            <View style={styles.summaryCard}>
+              <SummaryRow label="Restaurant" value={restaurantName} />
+              <SummaryRow label="Date" value={details.date} />
+              <SummaryRow label="Time" value={details.time} />
+              <SummaryRow label="Guests" value={details.guests} />
+            </View>
+            <TextInput style={[styles.input, styles.textArea]} value={details.specialRequests} onChangeText={(specialRequests) => setDetails({ ...details, specialRequests })} placeholder="Special requests" multiline />
+            <Text style={styles.cancelNote}>Free cancellation before the restaurant confirms.</Text>
+            <TouchableOpacity style={styles.primaryButton} onPress={onConfirm}><Text style={styles.primaryButtonText}>Confirm reservation</Text></TouchableOpacity>
+          </View>
+        )}
+
+        {step === 3 && (
+          <View style={styles.confirmBody}>
+            <View style={styles.confirmIcon}><Ionicons name="checkmark" size={30} color={PRIMARY} /></View>
+            <Text style={styles.modalTitle}>Reservation requested</Text>
+            <Text style={styles.modalSub}>Your table request for {restaurantName} is ready to review in bookings.</Text>
+            <View style={styles.summaryCard}>
+              <SummaryRow label="Date" value={details.date} />
+              <SummaryRow label="Time" value={details.time} />
+              <SummaryRow label="Guests" value={details.guests} />
+              <SummaryRow label="Status" value="Pending" red />
+            </View>
+            <TouchableOpacity style={styles.primaryButton} onPress={onDone}><Text style={styles.primaryButtonText}>View booking</Text></TouchableOpacity>
+          </View>
+        )}
+
+        <TouchableOpacity style={styles.closeModal} onPress={onClose}><Text style={styles.closeModalText}>Close</Text></TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+);
+
+const SummaryRow = ({ label, value, red }: { label: string; value: string; red?: boolean }) => (
+  <View style={styles.summaryRow}>
+    <Text style={styles.summaryLabel}>{label}</Text>
+    <Text style={[styles.summaryValue, red && styles.summaryValueRed]}>{value}</Text>
+  </View>
+);
+
+const styles = StyleSheet.create({
+  shell: { flex: 1, backgroundColor: PAPER },
+  container: { flex: 1, backgroundColor: PAPER },
+  header: { backgroundColor: PRIMARY, paddingHorizontal: 18, paddingTop: 12, paddingBottom: 14 },
+  statusRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  statusText: { color: '#FFFFFF', fontSize: 12, fontWeight: '800' },
+  backRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  backButton: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.16)' },
+  headerCopy: { flex: 1 },
+  headerTitle: { color: '#FFFFFF', fontSize: 20, fontWeight: '900' },
+  headerSubtitle: { color: 'rgba(255,255,255,0.72)', fontSize: 12, marginTop: 2 },
+  headerCircle: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.16)' },
+  tabBar: { flexDirection: 'row', backgroundColor: PAPER, borderBottomWidth: 1, borderBottomColor: BORDER },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: 13, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabActive: { borderBottomColor: PRIMARY },
+  tabText: { color: '#888888', fontSize: 14, fontWeight: '800' },
+  tabTextActive: { color: PRIMARY },
+  content: { padding: 16 },
+  menuCard: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: BORDER, padding: 14, marginBottom: 12 },
+  menuSection: { color: '#888888', fontSize: 12, fontWeight: '900', letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 10 },
+  menuItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
+  menuItemCopy: { flex: 1, paddingRight: 10 },
+  menuItemName: { color: INK, fontSize: 15, fontWeight: '800' },
+  menuItemDesc: { color: '#888888', fontSize: 12, marginTop: 3 },
+  menuPrice: { color: PRIMARY, fontSize: 14, fontWeight: '900' },
+  budgetEstimate: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFF4F4', borderWidth: 1, borderColor: '#FCD5D5', borderRadius: 12, padding: 13, marginBottom: 12 },
+  budgetTitle: { color: '#A32D2D', fontSize: 14, fontWeight: '900' },
+  budgetValue: { color: '#C04040', fontSize: 12, marginTop: 2 },
+  infoRow: { flexDirection: 'row', gap: 12, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
+  infoCopy: { flex: 1 },
+  infoTitle: { color: INK, fontSize: 14, fontWeight: '900' },
+  infoValue: { color: '#777777', fontSize: 13, marginTop: 2, lineHeight: 18 },
+  aboutText: { color: '#666666', fontSize: 14, lineHeight: 20, marginTop: 12 },
+  secondaryButton: { marginTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1, borderColor: PRIMARY, borderRadius: 10, paddingVertical: 12 },
+  secondaryButtonText: { color: PRIMARY, fontSize: 14, fontWeight: '900' },
+  ratingPanel: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: BORDER, padding: 16, alignItems: 'center', marginBottom: 12 },
+  ratingBig: { color: INK, fontSize: 38, fontWeight: '900' },
+  ratingMeta: { color: '#888888', fontSize: 13, marginTop: 3 },
+  reviewCard: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: BORDER, padding: 13, marginBottom: 10 },
+  reviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  reviewUser: { color: INK, fontSize: 14, fontWeight: '900' },
+  reviewStars: { color: PRIMARY, fontSize: 13, fontWeight: '900' },
+  reviewDate: { color: '#AAAAAA', fontSize: 11, marginTop: 3 },
+  reviewComment: { color: '#666666', fontSize: 13, marginTop: 8, lineHeight: 18 },
+  happyHourBand: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFF4F4', borderWidth: 1, borderColor: '#FCD5D5', borderRadius: 12, padding: 13, marginBottom: 12 },
+  livePill: { backgroundColor: PRIMARY, color: '#FFFFFF', borderRadius: 999, overflow: 'hidden', paddingHorizontal: 10, paddingVertical: 4, fontSize: 12, fontWeight: '900' },
+  happyTitle: { color: '#A32D2D', fontSize: 14, fontWeight: '900' },
+  happySub: { color: '#C04040', fontSize: 12, marginTop: 2 },
+  dealCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: BORDER, padding: 13, marginBottom: 10 },
+  dealTitle: { color: INK, fontSize: 15, fontWeight: '900' },
+  dealDesc: { color: '#888888', fontSize: 12, marginTop: 3 },
+  dealDiscount: { color: '#A32D2D', backgroundColor: '#FFF4F4', borderRadius: 6, overflow: 'hidden', paddingHorizontal: 9, paddingVertical: 4, fontSize: 12, fontWeight: '900' },
+  stickyCta: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: BORDER, padding: 14 },
+  primaryButton: { backgroundColor: PRIMARY, borderRadius: 12, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
+  primaryButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '900' },
+  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: PAPER, padding: 20 },
+  loadingText: { color: '#888888', marginTop: 12 },
+  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.36)' },
+  modalCard: { backgroundColor: PAPER, borderTopLeftRadius: 22, borderTopRightRadius: 22, overflow: 'hidden' },
+  stepBar: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: PRIMARY, paddingVertical: 14 },
+  stepGroup: { alignItems: 'center', gap: 4 },
+  stepCircle: { width: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' },
+  stepCircleActive: { backgroundColor: '#FFFFFF' },
+  stepText: { color: '#FFFFFF', fontWeight: '900' },
+  stepTextActive: { color: PRIMARY },
+  stepLabel: { color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: '800' },
+  modalBody: { padding: 18 },
+  confirmBody: { alignItems: 'center', padding: 18 },
+  modalTitle: { color: INK, fontSize: 20, fontWeight: '900', marginBottom: 4 },
+  modalSub: { color: '#888888', fontSize: 13, marginBottom: 14, textAlign: 'center' },
+  input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: BORDER, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 12, marginBottom: 10, color: INK },
+  textArea: { minHeight: 82, textAlignVertical: 'top' },
+  guestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: BORDER, borderRadius: 10, padding: 12, marginBottom: 12 },
+  guestLabel: { color: INK, fontWeight: '900' },
+  guestInput: { color: INK, fontWeight: '900', minWidth: 44, textAlign: 'center' },
+  summaryCard: { width: '100%', backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: BORDER, paddingHorizontal: 12, marginBottom: 12 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
+  summaryLabel: { color: '#888888', fontSize: 13 },
+  summaryValue: { color: INK, fontSize: 13, fontWeight: '900' },
+  summaryValueRed: { color: PRIMARY },
+  cancelNote: { color: '#888888', fontSize: 12, marginBottom: 12 },
+  confirmIcon: { width: 58, height: 58, borderRadius: 29, borderWidth: 2, borderColor: PRIMARY, backgroundColor: '#FFF4F4', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  closeModal: { alignItems: 'center', paddingBottom: 18 },
+  closeModalText: { color: PRIMARY, fontWeight: '900' },
 });
 
 export default RestaurantScreen;

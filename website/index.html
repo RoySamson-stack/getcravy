@@ -3,23 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoEat - Restaurant & Events Discovery Platform</title>
+    <title>cravyapp - Restaurant & Events Discovery Platform</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
         <div class="container">
-            <div class="logo">GoEat</div>
+            <div class="header-row">
+                <div class="logo">cravyapp</div>
+                <nav class="header-nav">
+                    <a href="#discover">Restaurants</a>
+                    <a href="#experiences">Events</a>
+                    <a href="#deals">Deals</a>
+                    <a href="#features">Features</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="#features" class="header-link">Explore</a>
+                    <a href="#download" class="header-chip">Get the App</a>
+                </div>
+            </div>
         </div>
     </header>
 
     <section class="hero">
         <div class="container">
+            <div class="hero-eyebrow">
+                <span class="hero-eyebrow-dot"></span>
+                <span>Now live in Nairobi</span>
+            </div>
             <h1>Discover Nairobi's Best<br><span>Food & Events</span></h1>
             <p>Events-first discovery with vibe-based browsing, real-time information, and direct restaurant contact. Built for Nairobians who want to discover the best food experiences in their city.</p>
             <div class="cta-group">
                 <a href="#download" class="btn btn-primary">Download App</a>
                 <a href="#features" class="btn btn-secondary">Explore Features</a>
+            </div>
+            <div class="discovery-panel">
+                <div class="discovery-tabs">
+                    <button class="discovery-tab active" type="button">Restaurants</button>
+                    <button class="discovery-tab" type="button">Events</button>
+                    <button class="discovery-tab" type="button">Deals</button>
+                </div>
+                <div class="discovery-search">
+                    <div class="discovery-input">
+                        <span>Search cuisine, restaurant, or vibe</span>
+                    </div>
+                    <div class="discovery-input">
+                        <span>Westlands, Karen, Kilimani...</span>
+                    </div>
+                    <a href="#discover" class="btn btn-primary discovery-btn">Start Exploring</a>
+                </div>
+                <div class="discovery-popular">
+                    <span>Popular:</span>
+                    <button type="button">Nyama Choma</button>
+                    <button type="button">Brunch Spots</button>
+                    <button type="button">Date Night</button>
+                    <button type="button">Rooftop Dining</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="trust-bar">
+        <div class="container trust-grid">
+            <div class="trust-item">
+                <strong>24k+</strong>
+                <span>Active users</span>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-item">
+                <strong>148</strong>
+                <span>Restaurants listed</span>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-item">
+                <strong>500+</strong>
+                <span>Monthly events</span>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-item">
+                <strong>4.6</strong>
+                <span>Average rating</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="discover" class="curated-section">
+        <div class="container">
+            <div class="section-header split">
+                <div>
+                    <h2>Featured Restaurants</h2>
+                    <p>Handpicked places across Nairobi for brunch, date nights, nyama choma, and everyday favorites.</p>
+                </div>
+                <a href="#download" class="section-link">View All</a>
+            </div>
+
+            <div class="curated-pills">
+                <button class="curated-pill active" type="button">All</button>
+                <button class="curated-pill" type="button">Nyama Choma</button>
+                <button class="curated-pill" type="button">Swahili</button>
+                <button class="curated-pill" type="button">Brunch</button>
+                <button class="curated-pill" type="button">Rooftop</button>
+                <button class="curated-pill" type="button">Date Night</button>
+            </div>
+
+            <div class="curated-grid">
+                <article class="curated-card">
+                    <div class="curated-image" style="background:linear-gradient(135deg, rgba(255,65,108,0.28), rgba(255,75,43,0.08)), url('https://images.unsplash.com/photo-1544025162-d76694265947?w=900&q=80') center/cover;">
+                        <span class="curated-tag">Nyama Choma</span>
+                    </div>
+                    <div class="curated-body">
+                        <h3>Carnivore Kitchen</h3>
+                        <div class="curated-meta">
+                            <span>Westlands</span>
+                            <span>4.8 (312)</span>
+                        </div>
+                        <div class="curated-footer">
+                            <span>KES 1,200 - 3,500</span>
+                            <a href="#download">Book Now</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="curated-card">
+                    <div class="curated-image" style="background:linear-gradient(135deg, rgba(16,185,129,0.22), rgba(59,130,246,0.06)), url('https://images.unsplash.com/photo-1559847844-5315695dadae?w=900&q=80') center/cover;">
+                        <span class="curated-tag">Swahili</span>
+                    </div>
+                    <div class="curated-body">
+                        <h3>Swahili Ocean</h3>
+                        <div class="curated-meta">
+                            <span>Kilimani</span>
+                            <span>4.7 (198)</span>
+                        </div>
+                        <div class="curated-footer">
+                            <span>KES 800 - 2,800</span>
+                            <a href="#download">Reserve</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="curated-card">
+                    <div class="curated-image" style="background:linear-gradient(135deg, rgba(245,158,11,0.24), rgba(255,65,108,0.08)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80') center/cover;">
+                        <span class="curated-tag">Brunch</span>
+                    </div>
+                    <div class="curated-body">
+                        <h3>The Garden Spot</h3>
+                        <div class="curated-meta">
+                            <span>Lavington</span>
+                            <span>4.9 (421)</span>
+                        </div>
+                        <div class="curated-footer">
+                            <span>KES 950 - 2,200</span>
+                            <a href="#download">See Menu</a>
+                        </div>
+                    </div>
+                </article>
             </div>
         </div>
     </section>
@@ -27,7 +164,7 @@
     <section class="app-showcase">
         <div class="container">
             <div class="section-header">
-                <h2>See GoEat in Action</h2>
+                <h2>See cravyapp in Action</h2>
                 <p>A sleek, intuitive interface designed for quick discovery.</p>
             </div>
             
@@ -142,10 +279,61 @@
         </div>
     </section>
 
+    <section id="experiences" class="experience-section">
+        <div class="container">
+            <div class="section-header split light">
+                <div>
+                    <h2>Events & Deals</h2>
+                    <p>What Nairobi food lovers can book, attend, and save on this week.</p>
+                </div>
+                <a href="#download" class="section-link accent">See Everything</a>
+            </div>
+
+            <div class="experience-grid">
+                <article class="experience-card featured">
+                    <span class="experience-badge hot">Tonight</span>
+                    <h3>Nairobi Street Food Night</h3>
+                    <p>12 vendors, live music, and an open-air food crowd in Westlands.</p>
+                    <div class="experience-footer">
+                        <span>Today • 6 PM - Midnight</span>
+                        <strong>Free Entry</strong>
+                    </div>
+                </article>
+
+                <article class="experience-card">
+                    <span class="experience-badge soft">Ticketed</span>
+                    <h3>Chef's Table at The Garden Spot</h3>
+                    <p>A five-course tasting night built around seasonal Kenyan produce.</p>
+                    <div class="experience-footer">
+                        <span>Friday • 8 PM</span>
+                        <strong>KES 3,500</strong>
+                    </div>
+                </article>
+            </div>
+
+            <div id="deals" class="deal-grid">
+                <article class="deal-strip">
+                    <div class="deal-discount">20%</div>
+                    <div>
+                        <h3>Nyama Choma Thursday</h3>
+                        <p>Save on grilled platters and group tables at Carnivore Kitchen.</p>
+                    </div>
+                </article>
+                <article class="deal-strip">
+                    <div class="deal-discount">2-for-1</div>
+                    <div>
+                        <h3>Brunch Cocktails</h3>
+                        <p>Weekend brunch offer at rooftop and garden restaurants in Kilimani.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
     <section id="features" class="features">
         <div class="container">
             <div class="section-header">
-                <h2>Why Choose GoEat</h2>
+                <h2>Why Choose cravyapp</h2>
                 <p>Everything you need to plan your next food adventure.</p>
             </div>
             
@@ -184,12 +372,48 @@
         </div>
     </section>
 
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>From discovery to booking to checkout, everything stays simple.</p>
+            </div>
+            <div class="how-grid">
+                <div class="how-card">
+                    <div class="how-number">1</div>
+                    <h3>Discover</h3>
+                    <p>Browse by cuisine, vibe, neighborhood, deals, and upcoming events.</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-number">2</div>
+                    <h3>Choose</h3>
+                    <p>Review menus, restaurant profiles, specials, and event details before you commit.</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-number">3</div>
+                    <h3>Go</h3>
+                    <p>Reserve a table, order delivery, or pay for tickets directly from the app.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="download" class="download-section">
         <div class="container">
             <div class="download-box">
                 <h2>Ready to Explore?</h2>
                 <p>Get the app and start discovering amazing food experiences in Nairobi</p>
                 <a href="https://expo.dev/artifacts/eas/cxE2eDQXzLxPXH48ZLr99A.apk" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 3rem;" download>Download Android APK</a>
+                <div class="store-buttons">
+                    <div class="store-card">
+                        <span class="store-small">Available on</span>
+                        <strong>Android APK</strong>
+                    </div>
+                    <div class="store-card muted">
+                        <span class="store-small">Coming soon</span>
+                        <strong>iPhone App Store</strong>
+                    </div>
+                </div>
                 <div class="download-info">
                     <p>Android 6.0+ required • Version 1.1.0</p>
                     <p style="margin-top: 0.5rem; color: rgba(255,255,255,0.5);">Enable "Install from unknown sources" in your settings</p>
@@ -202,12 +426,12 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-col brand">
-                    <h3>GoEat</h3>
+                    <h3>cravyapp</h3>
                     <p>Stop scrolling Instagram for hours. Find the best restaurants and food events in Nairobi—all in one place.</p>
                 </div>
                 <div class="footer-col">
                     <h3>Contact Us</h3>
-                    <p>support@goeat.com</p>
+                    <p>support@cravyapp.com</p>
                     <p>Nairobi, Kenya</p>
                 </div>
                 <div class="footer-col">
@@ -217,7 +441,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 GoEat. All rights reserved.</p>
+                <p>&copy; 2026 cravyapp. All rights reserved.</p>
             </div>
         </div>
     </footer>

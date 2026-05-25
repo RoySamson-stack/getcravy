@@ -18,6 +18,8 @@ export type RootStackParamList = {
   OrderConfirmation: {
     orderId?: string;
     total?: string;
+    status?: string;
+    restaurantName?: string;
   };
   AllRestaurants: {
     homeRestaurants?: any[];
@@ -46,6 +48,7 @@ export type Restaurant = {
   category: string;
   deliveryTime: string;
   price: string;
+  neighborhood?: string;
   address?: string;
   phone?: string;
   hours?: string;
@@ -60,6 +63,16 @@ export type MenuItem = {
   category: string;
   image: string;
   rating: number;
+};
+
+export type OrderItem = {
+  menuItemId: string;
+  restaurantId: string;
+  restaurantName: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
 };
 
 export type Review = {
@@ -100,7 +113,5 @@ export type CarMeet = {
   whatsapp: string;
   tags: string[];
 };
-
-
 
 

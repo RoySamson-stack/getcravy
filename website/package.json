@@ -1,7 +1,7 @@
 {
-  "name": "goeat-website",
+  "name": "cravyapp-website",
   "version": "1.0.0",
-  "description": "GoEat website with APK download",
+  "description": "cravyapp website with APK download",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

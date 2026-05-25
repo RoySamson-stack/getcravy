@@ -45,4 +45,7 @@ router.delete('/reviews/:id', adminController.deleteReview);
 // Reservations
 router.get('/reservations', adminController.getReservations);
 
+// Orders
+router.get('/orders', adminController.getOrders);
+
 module.exports = router;

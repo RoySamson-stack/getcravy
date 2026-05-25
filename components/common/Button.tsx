@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle, StyleProp } from 'react-native';
 import { ThemeContext } from '../../context/ThemeContext';
 
 interface ButtonProps {
@@ -25,8 +25,8 @@ export const Button: React.FC<ButtonProps> = ({
   if (!theme) throw new Error('ThemeContext must be used within ThemeProvider');
   const { colors } = theme;
 
-  const getButtonStyle = () => {
-    const baseStyle = [styles.button];
+  const getButtonStyle = (): StyleProp<ViewStyle>[] => {
+    const baseStyle: StyleProp<ViewStyle>[] = [styles.button];
     
     if (variant === 'primary') {
       baseStyle.push({ backgroundColor: colors.primary });
@@ -47,8 +47,8 @@ export const Button: React.FC<ButtonProps> = ({
     return baseStyle;
   };
 
-  const getTextStyle = () => {
-    const baseStyle = [styles.text];
+  const getTextStyle = (): StyleProp<TextStyle>[] => {
+    const baseStyle: StyleProp<TextStyle>[] = [styles.text];
     
     if (variant === 'primary' || variant === 'secondary') {
       baseStyle.push({ color: colors.white });
@@ -93,7 +93,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 
 
 

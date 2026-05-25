@@ -1,4 +1,4 @@
-package com.goeat.app
+package com.cravyapp.app
 
 import android.app.Application
 import android.content.res.Configuration

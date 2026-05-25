@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "GoEat",
-    "slug": "goeat",
+    "name": "cravyapp",
+    "slug": "cravyapp",
+    "scheme": "cravyapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,15 +18,16 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.goeat.app",
+      "bundleIdentifier": "com.cravyapp.app",
       "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs to access your location to show nearby restaurants",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs to access your location to show nearby restaurants"
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs to access your location to show nearby restaurants",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.goeat.app",
+      "package": "com.cravyapp.app",
       "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

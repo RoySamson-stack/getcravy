@@ -1,4 +1,4 @@
--- GoEat Production Database Schema
+-- cravyapp Production Database Schema
 -- PostgreSQL 14+
 
 -- Enable UUID extension

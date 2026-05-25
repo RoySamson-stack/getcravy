@@ -1,16 +1,28 @@
-const { Restaurant, MenuItem, Event, EventAttendee, Deal, Review, Reservation, Video, VideoLike, VideoComment, User } = require('../models/associations');
+const { Restaurant, MenuItem, Event, EventAttendee, Deal, Review, Reservation, Video, VideoLike, VideoComment, User, Order, OrderItem, Payment } = require('../models/associations');
 const { Op } = require('sequelize');
 
 // Dashboard stats
 exports.getDashboardStats = async (req, res) => {
   try {
-    const [totalRestaurants, totalEvents, totalDeals, totalUsers, totalReviews, totalReservations] = await Promise.all([
+    const [totalRestaurants, totalEvents, totalDeals, totalUsers, totalReviews, totalReservations, totalOrders, reservations, orders] = await Promise.all([
       Restaurant.count(),
       Event.count({ where: { isActive: true } }),
       Deal.count({ where: { isActive: true } }),
       User.count(),
       Review.count(),
-      Reservation.count()
+      Reservation.count(),
+      Order.count(),
+      Reservation.findAll({
+        include: [
+          { model: Restaurant, as: 'restaurant', attributes: ['id', 'name'] }
+        ]
+      }),
+      Order.findAll({
+        include: [
+          { model: Restaurant, as: 'restaurant', attributes: ['id', 'name'] },
+          { model: Payment, as: 'payment', attributes: ['status', 'amount', 'method', 'paidAt'] }
+        ]
+      })
     ]);
 
     const todayEvents = await Event.count({
@@ -30,6 +42,92 @@ exports.getDashboardStats = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
+    const reservationSummary = {
+      pendingReservations: 0,
+      confirmedReservations: 0,
+      completedReservations: 0,
+      totalReservedGuests: 0
+    };
+
+    const reservationPerformance = new Map();
+    for (const reservation of reservations) {
+      const restaurantId = reservation.restaurantId;
+      const entry = reservationPerformance.get(restaurantId) || {
+        restaurantId,
+        restaurantName: reservation.restaurant?.name || 'Unknown',
+        reservationCount: 0,
+        reservedGuests: 0,
+        totalRevenue: 0,
+        paidOrders: 0,
+        averageOrderValue: 0
+      };
+
+      entry.reservationCount += 1;
+      entry.reservedGuests += reservation.partySize || 0;
+      reservationPerformance.set(restaurantId, entry);
+
+      if (reservation.status === 'pending') reservationSummary.pendingReservations += 1;
+      if (reservation.status === 'confirmed') reservationSummary.confirmedReservations += 1;
+      if (reservation.status === 'completed') reservationSummary.completedReservations += 1;
+      if (['pending', 'confirmed', 'completed'].includes(reservation.status)) {
+        reservationSummary.totalReservedGuests += reservation.partySize || 0;
+      }
+    }
+
+    const now = new Date().toISOString().split('T')[0];
+    const financial = {
+      totalRevenue: 0,
+      paidRevenue: 0,
+      pendingRevenue: 0,
+      paidOrders: 0,
+      ...reservationSummary,
+      topPerformingRestaurants: []
+    };
+
+    for (const order of orders) {
+      const orderTotal = Number(order.total || 0);
+      const paymentStatus = order.payment?.status || order.paymentStatus;
+
+      financial.totalRevenue += orderTotal;
+      if (paymentStatus === 'paid') {
+        financial.paidRevenue += orderTotal;
+        financial.paidOrders += 1;
+      } else if (paymentStatus === 'pending') {
+        financial.pendingRevenue += orderTotal;
+      }
+
+      if (order.restaurantId) {
+        const entry = reservationPerformance.get(order.restaurantId) || {
+          restaurantId: order.restaurantId,
+          restaurantName: order.restaurant?.name || 'Unknown',
+          reservationCount: 0,
+          reservedGuests: 0,
+          totalRevenue: 0,
+          paidOrders: 0,
+          averageOrderValue: 0
+        };
+
+        entry.totalRevenue += orderTotal;
+        if (paymentStatus === 'paid') {
+          entry.paidOrders += 1;
+        }
+        entry.averageOrderValue = entry.paidOrders > 0
+          ? Number((entry.totalRevenue / entry.paidOrders).toFixed(2))
+          : Number(entry.totalRevenue.toFixed(2));
+
+        reservationPerformance.set(order.restaurantId, entry);
+      }
+    }
+
+    financial.topPerformingRestaurants = Array.from(reservationPerformance.values())
+      .sort((a, b) => {
+        if (b.totalRevenue !== a.totalRevenue) {
+          return b.totalRevenue - a.totalRevenue;
+        }
+        return b.reservedGuests - a.reservedGuests;
+      })
+      .slice(0, 5);
+
     res.json({
       success: true,
       data: {
@@ -40,8 +138,10 @@ exports.getDashboardStats = async (req, res) => {
           totalUsers,
           totalReviews,
           totalReservations,
+          totalOrders,
           todayEvents
         },
+        financial,
         recentRestaurants,
         recentEvents
       }
@@ -180,7 +280,7 @@ exports.getEvents = async (req, res) => {
     const offset = (page - 1) * limit;
     const where = {};
 
-    if (search) where.name = { [Op.iLike]: `%${search}%` };
+    if (search) where.title = { [Op.iLike]: `%${search}%` };
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const { count, rows } = await Event.findAndCountAll({
@@ -217,7 +317,10 @@ exports.getEvents = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
   try {
-    const event = await Event.create(req.body);
+    const event = await Event.create({
+      ...req.body,
+      userId: req.body.userId || req.user.id
+    });
     res.status(201).json({
       success: true,
       message: 'Event created successfully',
@@ -297,8 +400,8 @@ exports.getDeals = async (req, res) => {
     const offset = (page - 1) * limit;
     const where = {};
 
-    if (search) where.name = { [Op.iLike]: `%${search}%` };
-    if (isActive !== undefined) where.isActive = isActive === 'true';
+    if (search) where.title = { [Op.iLike]: `%${search}%` };
+    if (isActive !== undefined) where.isAvailable = isActive === 'true';
 
     const { count, rows } = await Deal.findAndCountAll({
       where,
@@ -722,7 +825,7 @@ exports.getReservations = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['reservationDate', 'DESC']],
+      order: [['date', 'DESC'], ['time', 'DESC']],
       include: [
         { model: User, as: 'user', attributes: ['id', 'name', 'email', 'phone'] },
         { model: Restaurant, as: 'restaurant', attributes: ['id', 'name'] }
@@ -743,6 +846,51 @@ exports.getReservations = async (req, res) => {
     });
   } catch (error) {
     console.error('Admin get reservations error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+exports.getOrders = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, restaurantId, status, paymentStatus } = req.query;
+    const offset = (page - 1) * limit;
+    const where = {};
+
+    if (restaurantId) where.restaurantId = restaurantId;
+    if (status) where.status = status;
+    if (paymentStatus) where.paymentStatus = paymentStatus;
+
+    const { count, rows } = await Order.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'name', 'email', 'phone'] },
+        { model: Restaurant, as: 'restaurant', attributes: ['id', 'name'] },
+        { model: OrderItem, as: 'items' },
+        { model: Payment, as: 'payment', attributes: ['id', 'status', 'amount', 'method', 'paidAt'] }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: {
+        orders: rows,
+        pagination: {
+          total: count,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(count / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Admin get orders error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

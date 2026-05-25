@@ -13,7 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { ThemeContext } from '../context/ThemeContext';
 import { restaurantAPI } from '../services/api';
-import { Restaurant } from '../types/navigation';
+import { Restaurant, RootStackParamList } from '../types/navigation';
+import { StackScreenProps } from '@react-navigation/stack';
 
 // Additional restaurants that don't appear on the home page
 const additionalRestaurants = [
@@ -65,7 +66,9 @@ const neighborhoods = [
   { id: 'Parklands', name: 'Parklands' },
 ];
 
-const AllRestaurantsScreen = ({ navigation, route }) => {
+type Props = StackScreenProps<RootStackParamList, 'AllRestaurants'>;
+
+const AllRestaurantsScreen = ({ navigation, route }: Props) => {
   const theme = useContext(ThemeContext);
   if (!theme) throw new Error('ThemeContext must be used within ThemeProvider');
   const { colors } = theme;
@@ -134,7 +137,7 @@ const AllRestaurantsScreen = ({ navigation, route }) => {
     setFilteredRestaurants(filtered);
   }, [searchQuery, selectedNeighborhood, allRestaurants]);
 
-  const renderRestaurantItem = ({ item }) => (
+  const renderRestaurantItem = ({ item }: { item: Restaurant }) => (
     <TouchableOpacity 
       style={styles.restaurantCard}
       onPress={() => navigation.navigate('Restaurant', { 

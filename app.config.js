@@ -1,7 +1,8 @@
 module.exports = {
   expo: {
-    name: "GoEat",
-    slug: "goeat",
+    name: "cravyapp",
+    slug: "cravyapp",
+    scheme: "cravyapp",
     version: "1.1.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -15,15 +16,16 @@ module.exports = {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.goeat.app",
+      bundleIdentifier: "com.cravyapp.app",
       buildNumber: "2",
       infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
         NSLocationWhenInUseUsageDescription: "This app needs to access your location to show nearby restaurants",
         NSLocationAlwaysAndWhenInUseUsageDescription: "This app needs to access your location to show nearby restaurants"
       }
     },
     android: {
-      package: "com.goeat.app",
+      package: "com.cravyapp.app",
       versionCode: 3,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
@@ -45,7 +47,9 @@ module.exports = {
     },
     privacy: "public",
     plugins: [
-      "expo-location"
+      "expo-location",
+      "expo-video",
+      "expo-web-browser"
     ],
     owner: "riot428"
   }

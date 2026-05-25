@@ -4,8 +4,8 @@
     "strict": true,
     "target": "esnext", // Specify ECMAScript target version
     "module": "esnext", // Specify module code generation
-    "jsx": "react", // Support JSX in React
-    "moduleResolution": "node", // Resolve modules using Node.js style
+    "jsx": "react-jsx", // Support the modern JSX transform
+    "moduleResolution": "bundler", // Resolve modules using Expo/Metro-compatible rules
     "esModuleInterop": true, // Enable interoperability between CommonJS and ES Modules
     "skipLibCheck": true, // Skip type checking of declaration files
     "forceConsistentCasingInFileNames": true // Ensure consistent casing in imports

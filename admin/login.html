@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoEat Admin - Login</title>
-    <link rel="stylesheet" href="admin.css?v=2">
+    <title>cravyapp Admin - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css?v=7">
 </head>
 <body class="login-page">
     <div class="login-container">
         <div class="login-box">
             <div class="login-header">
-                <h1>GoEat</h1>
-                <p>Admin Portal</p>
+                <div class="eyebrow">Admin Portal</div>
+                <h1>cravyapp</h1>
+                <p>Operations portal for restaurants, menu performance, reservations, events, and revenue reporting.</p>
             </div>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="admin@goeat.com">
+                    <input type="email" id="email" name="email" required placeholder="admin@cravyapp.com">
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -28,31 +32,21 @@
         </div>
     </div>
     <script>
-        // HARDCODED LOGIN FOR DESIGN PREVIEW - v2
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            
-            // Accept any credentials for design preview
-            localStorage.setItem('adminToken', 'hardcoded-token-for-design-preview');
-            localStorage.setItem('adminUser', JSON.stringify({
-                id: '1',
-                name: 'Admin User',
-                email: email || 'admin@example.com',
-                role: 'admin'
-            }));
-            window.location.href = 'index.html?v=2';
-        });
 
-        // Auto-login for design preview
-        window.addEventListener('load', function() {
-            localStorage.setItem('adminToken', 'hardcoded-token-for-design-preview');
+            const email = document.getElementById('email').value.trim() || 'admin@example.com';
+
+            localStorage.removeItem('adminPreviewMode');
+            localStorage.setItem('adminToken', 'dev-admin-token');
             localStorage.setItem('adminUser', JSON.stringify({
-                id: '1',
+                id: 'dev-admin',
                 name: 'Admin User',
-                email: 'admin@example.com',
+                email,
                 role: 'admin'
             }));
+
+            window.location.href = 'index.html';
         });
     </script>
 </body>

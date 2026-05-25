@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.goeat.app'
+    namespace 'com.cravyapp.app'
     defaultConfig {
-        applicationId 'com.goeat.app'
+        applicationId 'com.cravyapp.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2

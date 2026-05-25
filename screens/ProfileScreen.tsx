@@ -17,6 +17,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 
+type ExpandableSection = 'personalInfo' | 'preferences' | 'account';
+type ModalType = 'password' | 'payment' | null;
+
 const ProfileScreen = ({ navigation }: any) => {
   const authContext = useContext(AuthContext);
   if (!authContext) {
@@ -41,7 +44,7 @@ const ProfileScreen = ({ navigation }: any) => {
     account: false
   });
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentModal, setCurrentModal] = useState(null);
+  const [currentModal, setCurrentModal] = useState<ModalType>(null);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -56,21 +59,21 @@ const ProfileScreen = ({ navigation }: any) => {
     { id: '2', name: 'Chicken Burger', restaurant: 'Burger Palace' }
   ]);
 
-  const toggleSection = (section) => {
+  const toggleSection = (section: ExpandableSection) => {
     setExpandedSections({
       ...expandedSections,
       [section]: !expandedSections[section]
     });
   };
 
-  const handleInputChange = (name, value) => {
+  const handleInputChange = (name: keyof typeof formData, value: string) => {
     setFormData({
       ...formData,
       [name]: value
     });
   };
 
-  const handlePasswordChange = (name, value) => {
+  const handlePasswordChange = (name: keyof typeof passwordData, value: string) => {
     setPasswordData({
       ...passwordData,
       [name]: value
@@ -112,18 +115,18 @@ const ProfileScreen = ({ navigation }: any) => {
     setModalVisible(false);
   };
 
-  const handleSetDefaultPayment = (id) => {
+  const handleSetDefaultPayment = (id: string) => {
     setPaymentMethods(paymentMethods.map(method => ({
       ...method,
       default: method.id === id
     })));
   };
 
-  const handleRemovePaymentMethod = (id) => {
+  const handleRemovePaymentMethod = (id: string) => {
     setPaymentMethods(paymentMethods.filter(method => method.id !== id));
   };
 
-  const handleRemoveFavorite = (id) => {
+  const handleRemoveFavorite = (id: string) => {
     setFavorites(favorites.filter(fav => fav.id !== id));
     Alert.alert('Removed', 'Item removed from favorites');
   };
@@ -148,7 +151,7 @@ const ProfileScreen = ({ navigation }: any) => {
     );
   };
 
-  const openModal = (modalType) => {
+  const openModal = (modalType: ModalType) => {
     setCurrentModal(modalType);
     setModalVisible(true);
   };

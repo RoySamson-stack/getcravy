@@ -1,6 +1,6 @@
-# GoEat Website
+# cravyapp Website
 
-Professional website for GoEat app with APK download functionality.
+Professional website for cravyapp app with APK download functionality.
 
 ## Setup
 
@@ -12,7 +12,7 @@ npm install
 2. Place your APK file:
 ```bash
 # Copy your built APK to the downloads folder
-cp /path/to/your/goeat.apk ./downloads/goeat.apk
+cp /path/to/your/cravyapp.apk ./downloads/cravyapp.apk
 ```
 
 3. Start the server:
@@ -32,7 +32,7 @@ cd /home/unknwn/getcravy
 eas build --platform android --local
 
 # Copy the built APK to website
-cp ./build/goeat.apk ./website/downloads/goeat.apk
+cp ./build/cravyapp.apk ./website/downloads/cravyapp.apk
 ```
 
 ## Features

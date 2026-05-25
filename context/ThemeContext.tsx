@@ -1,6 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, ReactNode, useState } from 'react';
 
 export type ThemeMode = 'light' | 'dark' | 'auto';
 
@@ -70,58 +68,20 @@ const darkColors: ThemeColors = {
 };
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-// Export ThemeContextType for components to use
 export type { ThemeContextType };
 
-interface ThemeProviderProps {
-  children: ReactNode;
-}
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [mode, setModeState] = useState<ThemeMode>('light');
+  const isDark = mode === 'dark';
+  const colors = isDark ? darkColors : lightColors;
 
-export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const systemColorScheme = useColorScheme();
-  const [mode, setModeState] = useState<ThemeMode>('auto');
-  const [isDark, setIsDark] = useState(systemColorScheme === 'dark');
-
-  useEffect(() => {
-    // Load saved theme preference
-    const loadTheme = async () => {
-      try {
-        const savedMode = await AsyncStorage.getItem('themeMode');
-        if (savedMode === 'light' || savedMode === 'dark' || savedMode === 'auto') {
-          setModeState(savedMode);
-        }
-      } catch (error) {
-        console.error('Error loading theme:', error);
-      }
-    };
-    loadTheme();
-  }, []);
-
-  useEffect(() => {
-    // Update isDark based on mode
-    if (mode === 'auto') {
-      setIsDark(systemColorScheme === 'dark');
-    } else {
-      setIsDark(mode === 'dark');
-    }
-  }, [mode, systemColorScheme]);
-
-  const setMode = async (newMode: ThemeMode) => {
-    setModeState(newMode);
-    try {
-      await AsyncStorage.setItem('themeMode', newMode);
-    } catch (error) {
-      console.error('Error saving theme:', error);
-    }
+  const setMode = (newMode: ThemeMode) => {
+    setModeState(newMode === 'dark' ? 'dark' : 'light');
   };
 
   const toggleTheme = () => {
-    const newMode = isDark ? 'light' : 'dark';
-    setMode(newMode);
+    setModeState((currentMode) => (currentMode === 'dark' ? 'light' : 'dark'));
   };
-
-  const colors = isDark ? darkColors : lightColors;
 
   return (
     <ThemeContext.Provider value={{ mode, isDark, colors, setMode, toggleTheme }}>
@@ -129,9 +89,3 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     </ThemeContext.Provider>
   );
 };
-
-// Use React.useContext(ThemeContext) directly in components instead of useTheme hook
-
-
-
-

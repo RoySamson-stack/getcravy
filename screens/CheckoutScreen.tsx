@@ -1,39 +1,122 @@
-import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  Text, 
-  ScrollView, 
+import React, { useMemo, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
   TouchableOpacity,
   TextInput,
-  Switch
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { orderAPI } from '../services/orderAPI';
 
-const CheckoutScreen = ({ navigation }) => {
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [saveCard, setSaveCard] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvv, setCvv] = useState('');
+WebBrowser.maybeCompleteAuthSession();
+
+const CheckoutScreen = ({ navigation }: any) => {
+  const { user } = useAuth();
+  const { items, summary, clearCart } = useCart();
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card');
+  const [deliveryAddress, setDeliveryAddress] = useState(user?.address || '');
   const [deliveryInstructions, setDeliveryInstructions] = useState('');
+  const [placingOrder, setPlacingOrder] = useState(false);
 
-  const cartItems = [
-    { id: '1', name: 'Margherita Pizza', price: 12.99, quantity: 1 },
-    { id: '2', name: 'Pasta Carbonara', price: 14.99, quantity: 2 },
-    { id: '3', name: 'Garlic Bread', price: 4.99, quantity: 1 }
-  ];
+  const restaurantName = useMemo(() => items[0]?.restaurantName || 'Restaurant', [items]);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryFee = 2.99;
-  const tax = subtotal * 0.08;
-  const total = subtotal + deliveryFee + tax;
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      Alert.alert('Login Required', 'Please login before placing an order.');
+      navigation.navigate('Login');
+      return;
+    }
 
-  const handlePlaceOrder = () => {
-    // In a real app, you would process the payment here
-    navigation.navigate('OrderConfirmation', { orderId: '12345', total: total.toFixed(2) });
+    if (items.length === 0) {
+      Alert.alert('Cart Empty', 'Add items before placing an order.');
+      navigation.goBack();
+      return;
+    }
+
+    if (!deliveryAddress.trim()) {
+      Alert.alert('Address Required', 'Please enter a delivery address.');
+      return;
+    }
+
+    try {
+      setPlacingOrder(true);
+      const result = await orderAPI.createOrder({
+        restaurantId: items[0].restaurantId,
+        items: items.map((item) => ({
+          menuItemId: item.menuItemId,
+          quantity: item.quantity,
+        })),
+        paymentMethod,
+        deliveryAddress: deliveryAddress.trim(),
+        deliveryInstructions: deliveryInstructions.trim() || undefined,
+        contactPhone: user.phone,
+      });
+
+      if (!result.success || !result.order) {
+        Alert.alert('Order Failed', result.message || 'Unable to place order.');
+        return;
+      }
+
+      if (paymentMethod === 'cash') {
+        await clearCart();
+        navigation.replace('OrderConfirmation', {
+          orderId: result.order.id,
+          total: String(result.order.total),
+          status: result.order.status,
+          restaurantName: result.order.restaurant?.name || restaurantName,
+        });
+        return;
+      }
+
+      if (!result.checkout?.authorizationUrl) {
+        Alert.alert('Payment Failed', 'Unable to initialize Paystack checkout.');
+        return;
+      }
+
+      const redirectUrl = Linking.createURL('paystack-callback');
+      const browserResult = await WebBrowser.openAuthSessionAsync(
+        result.checkout.authorizationUrl,
+        redirectUrl
+      );
+
+      if (browserResult.type !== 'success' || !browserResult.url) {
+        Alert.alert('Payment Cancelled', 'The Paystack checkout was not completed.');
+        return;
+      }
+
+      const parsed = Linking.parse(browserResult.url);
+      const callbackReference =
+        typeof parsed.queryParams?.reference === 'string'
+          ? parsed.queryParams.reference
+          : result.checkout.reference;
+
+      const verification = await orderAPI.verifyPayment(result.order.id, callbackReference);
+      if (!verification.success || !verification.order) {
+        Alert.alert('Verification Failed', verification.message || 'Unable to verify Paystack payment.');
+        return;
+      }
+
+      await clearCart();
+      navigation.replace('OrderConfirmation', {
+        orderId: verification.order.id,
+        total: String(verification.order.total),
+        status: verification.order.status,
+        restaurantName: verification.order.restaurant?.name || restaurantName,
+      });
+    } catch (error) {
+      console.error('Place order error:', error);
+      Alert.alert('Order Failed', 'An unexpected error occurred while placing your order.');
+    } finally {
+      setPlacingOrder(false);
+    }
   };
 
   return (
@@ -45,130 +128,64 @@ const CheckoutScreen = ({ navigation }) => {
         <Text style={styles.headerTitle}>Checkout</Text>
         <View style={{ width: 24 }} />
       </View>
-      
+
       <ScrollView style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delivery Address</Text>
           <View style={styles.addressCard}>
             <View style={styles.addressHeader}>
               <Ionicons name="location-outline" size={20} color="#E23744" />
-              <Text style={styles.addressTitle}>Home</Text>
-              <TouchableOpacity style={styles.changeButton}>
-                <Text style={styles.changeButtonText}>Change</Text>
-              </TouchableOpacity>
+              <Text style={styles.addressTitle}>Delivery Address</Text>
             </View>
-            <Text style={styles.addressText}>123 Main Street, Apt 4B</Text>
-            <Text style={styles.addressText}>New York, NY 10001</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your address"
+              value={deliveryAddress}
+              onChangeText={setDeliveryAddress}
+            />
           </View>
         </View>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Payment Method</Text>
           <View style={styles.paymentMethods}>
-            <TouchableOpacity 
-              style={[
-                styles.paymentMethod,
-                paymentMethod === 'card' && styles.selectedPaymentMethod
-              ]}
-              onPress={() => setPaymentMethod('card')}
-            >
-              <Ionicons 
-                name="card-outline" 
-                size={24} 
-                color={paymentMethod === 'card' ? '#E23744' : '#666'} 
-              />
-              <Text style={[
-                styles.paymentMethodText,
-                paymentMethod === 'card' && styles.selectedPaymentMethodText
-              ]}>
-                Credit/Debit Card
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[
-                styles.paymentMethod,
-                paymentMethod === 'paypal' && styles.selectedPaymentMethod
-              ]}
-              onPress={() => setPaymentMethod('paypal')}
-            >
-              <Ionicons 
-                name="logo-paypal" 
-                size={24} 
-                color={paymentMethod === 'paypal' ? '#E23744' : '#666'} 
-              />
-              <Text style={[
-                styles.paymentMethodText,
-                paymentMethod === 'paypal' && styles.selectedPaymentMethodText
-              ]}>
-                PayPal
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[
-                styles.paymentMethod,
-                paymentMethod === 'cash' && styles.selectedPaymentMethod
-              ]}
-              onPress={() => setPaymentMethod('cash')}
-            >
-              <Ionicons 
-                name="cash-outline" 
-                size={24} 
-                color={paymentMethod === 'cash' ? '#E23744' : '#666'} 
-              />
-              <Text style={[
-                styles.paymentMethodText,
-                paymentMethod === 'cash' && styles.selectedPaymentMethodText
-              ]}>
-                Cash on Delivery
-              </Text>
-            </TouchableOpacity>
+            {[
+              { key: 'card', icon: 'card-outline', label: 'Paystack' },
+              { key: 'cash', icon: 'cash-outline', label: 'Cash on Delivery' },
+            ].map((option) => (
+              <TouchableOpacity
+                key={option.key}
+                style={[
+                  styles.paymentMethod,
+                  paymentMethod === option.key && styles.selectedPaymentMethod
+                ]}
+                onPress={() => setPaymentMethod(option.key as 'card' | 'cash')}
+              >
+                <Ionicons
+                  name={option.icon as any}
+                  size={24}
+                  color={paymentMethod === option.key ? '#E23744' : '#666'}
+                />
+                <Text style={[
+                  styles.paymentMethodText,
+                  paymentMethod === option.key && styles.selectedPaymentMethodText
+                ]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
-          
+
           {paymentMethod === 'card' && (
-            <View style={styles.cardForm}>
-              <TextInput
-                style={styles.input}
-                placeholder="Card Number"
-                value={cardNumber}
-                onChangeText={setCardNumber}
-                keyboardType="numeric"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Name on Card"
-                value={cardName}
-                onChangeText={setCardName}
-              />
-              <View style={styles.rowInputs}>
-                <TextInput
-                  style={[styles.input, styles.halfInput]}
-                  placeholder="MM/YY"
-                  value={expiry}
-                  onChangeText={setExpiry}
-                />
-                <TextInput
-                  style={[styles.input, styles.halfInput]}
-                  placeholder="CVV"
-                  value={cvv}
-                  onChangeText={setCvv}
-                  keyboardType="numeric"
-                />
-              </View>
-              <View style={styles.saveCardRow}>
-                <Switch
-                  value={saveCard}
-                  onValueChange={setSaveCard}
-                  trackColor={{ false: "#767577", true: "#FFEEDD" }}
-                  thumbColor={saveCard ? "#E23744" : "#f4f3f4"}
-                />
-                <Text style={styles.saveCardText}>Save card for future payments</Text>
-              </View>
+            <View style={styles.paystackNotice}>
+              <Ionicons name="shield-checkmark-outline" size={20} color="#E23744" />
+              <Text style={styles.paystackNoticeText}>
+                You will complete this payment securely on Paystack.
+              </Text>
             </View>
           )}
         </View>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delivery Instructions</Text>
           <TextInput
@@ -179,47 +196,41 @@ const CheckoutScreen = ({ navigation }) => {
             multiline
           />
         </View>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Order Summary</Text>
-          {cartItems.map(item => (
-            <View key={item.id} style={styles.orderItem}>
+          {items.map((item) => (
+            <View key={item.menuItemId} style={styles.orderItem}>
               <Text style={styles.orderItemName}>{item.quantity}x {item.name}</Text>
-              <Text style={styles.orderItemPrice}>${(item.price * item.quantity).toFixed(2)}</Text>
+              <Text style={styles.orderItemPrice}>KES {(item.price * item.quantity).toFixed(2)}</Text>
             </View>
           ))}
           <View style={styles.divider} />
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${subtotal.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>KES {summary.subtotal.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Delivery Fee</Text>
-            <Text style={styles.summaryValue}>${deliveryFee.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>KES {summary.deliveryFee.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Tax</Text>
-            <Text style={styles.summaryValue}>${tax.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>KES {summary.tax.toFixed(2)}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.summaryRow}>
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>KES {summary.total.toFixed(2)}</Text>
           </View>
         </View>
       </ScrollView>
-      
-      <TouchableOpacity 
-        style={styles.placeOrderButton}
-        onPress={handlePlaceOrder}
-      >
-        <LinearGradient
-          colors={['#E23744', '#E23744']}
-          style={styles.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          <Text style={styles.placeOrderButtonText}>Place Order - ${total.toFixed(2)}</Text>
+
+      <TouchableOpacity style={styles.placeOrderButton} onPress={handlePlaceOrder} disabled={placingOrder || items.length === 0}>
+        <LinearGradient colors={['#E23744', '#E23744']} style={[styles.gradient, (placingOrder || items.length === 0) && styles.disabledButton]}>
+          <Text style={styles.placeOrderButtonText}>
+            {placingOrder ? 'Placing Order...' : `Place Order - KES ${summary.total.toFixed(2)}`}
+          </Text>
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -279,22 +290,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     flex: 1,
   },
-  changeButton: {
-    backgroundColor: '#FFEEDD',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  changeButtonText: {
-    color: '#E23744',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  addressText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 3,
-  },
   paymentMethods: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -323,9 +318,6 @@ const styles = StyleSheet.create({
     color: '#E23744',
     fontWeight: 'bold',
   },
-  cardForm: {
-    marginTop: 10,
-  },
   input: {
     backgroundColor: '#F5F5F5',
     borderRadius: 10,
@@ -337,20 +329,17 @@ const styles = StyleSheet.create({
     height: 80,
     textAlignVertical: 'top',
   },
-  rowInputs: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  halfInput: {
-    width: '48%',
-  },
-  saveCardRow: {
+  paystackNotice: {
+    marginTop: 8,
+    padding: 14,
+    borderRadius: 10,
+    backgroundColor: '#FFF9F2',
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    gap: 10,
   },
-  saveCardText: {
-    marginLeft: 10,
+  paystackNoticeText: {
+    flex: 1,
     fontSize: 14,
     color: '#666',
   },
@@ -401,6 +390,9 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 10,
     overflow: 'hidden',
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   gradient: {
     padding: 18,

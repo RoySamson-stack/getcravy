@@ -74,3 +74,48 @@ exports.validateReview = [
     .isLength({ max: 1000 })
     .withMessage('Comment must be less than 1000 characters')
 ];
+
+exports.validateOrder = [
+  body('restaurantId')
+    .trim()
+    .notEmpty()
+    .withMessage('Restaurant is required')
+    .isUUID()
+    .withMessage('Restaurant ID must be valid'),
+
+  body('items')
+    .isArray({ min: 1 })
+    .withMessage('At least one order item is required'),
+
+  body('items.*.menuItemId')
+    .trim()
+    .notEmpty()
+    .withMessage('Menu item is required')
+    .isUUID()
+    .withMessage('Menu item ID must be valid'),
+
+  body('items.*.quantity')
+    .isInt({ min: 1, max: 100 })
+    .withMessage('Quantity must be between 1 and 100'),
+
+  body('paymentMethod')
+    .isIn(['card', 'paypal', 'cash'])
+    .withMessage('Payment method must be card, paypal, or cash'),
+
+  body('deliveryAddress')
+    .trim()
+    .notEmpty()
+    .withMessage('Delivery address is required')
+    .isLength({ min: 5, max: 500 })
+    .withMessage('Delivery address must be between 5 and 500 characters'),
+
+  body('deliveryInstructions')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('Delivery instructions must be less than 500 characters'),
+
+  body('contactPhone')
+    .optional()
+    .isLength({ min: 10, max: 20 })
+    .withMessage('Contact phone must be between 10 and 20 characters')
+];

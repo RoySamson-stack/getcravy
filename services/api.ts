@@ -40,10 +40,13 @@ const apiRequest = async (
 ): Promise<Response> => {
   const token = await getToken();
   
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
+
+  if (options.headers) {
+    Object.assign(headers, options.headers as Record<string, string>);
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -259,4 +262,3 @@ export const restaurantAPI = {
     return restaurantAPI.getAll({ ...filters, search: query });
   },
 };
-

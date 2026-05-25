@@ -12,6 +12,9 @@ const VideoComment = require('./VideoComment');
 const Event = require('./Event');
 const EventAttendee = require('./EventAttendee');
 const Deal = require('./Deal');
+const Order = require('./Order');
+const OrderItem = require('./OrderItem');
+const Payment = require('./Payment');
 
 // User associations
 User.hasMany(Restaurant, { foreignKey: 'ownerId', as: 'restaurants' });
@@ -22,6 +25,7 @@ User.hasMany(VideoLike, { foreignKey: 'userId', as: 'videoLikes' });
 User.hasMany(VideoComment, { foreignKey: 'userId', as: 'videoComments' });
 User.hasMany(Event, { foreignKey: 'userId', as: 'events' });
 User.hasMany(EventAttendee, { foreignKey: 'userId', as: 'eventAttendances' });
+User.hasMany(Order, { foreignKey: 'userId', as: 'orders' });
 
 // Restaurant associations
 Restaurant.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
@@ -31,6 +35,7 @@ Restaurant.hasMany(Reservation, { foreignKey: 'restaurantId', as: 'reservations'
 Restaurant.hasMany(Video, { foreignKey: 'restaurantId', as: 'videos' });
 Restaurant.hasMany(Event, { foreignKey: 'restaurantId', as: 'events' });
 Restaurant.hasMany(Deal, { foreignKey: 'restaurantId', as: 'deals' });
+Restaurant.hasMany(Order, { foreignKey: 'restaurantId', as: 'orders' });
 
 // MenuItem associations
 MenuItem.belongsTo(Restaurant, { foreignKey: 'restaurantId', as: 'restaurant' });
@@ -75,6 +80,19 @@ EventAttendee.belongsTo(Event, { foreignKey: 'eventId', as: 'event' });
 // Deal associations
 Deal.belongsTo(Restaurant, { foreignKey: 'restaurantId', as: 'restaurant' });
 
+// Order associations
+Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Order.belongsTo(Restaurant, { foreignKey: 'restaurantId', as: 'restaurant' });
+Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items' });
+Order.hasOne(Payment, { foreignKey: 'orderId', as: 'payment' });
+
+// Order item associations
+OrderItem.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+OrderItem.belongsTo(MenuItem, { foreignKey: 'menuItemId', as: 'menuItem' });
+
+// Payment associations
+Payment.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+
 module.exports = {
   User,
   Restaurant,
@@ -86,9 +104,11 @@ module.exports = {
   VideoComment,
   Event,
   EventAttendee,
-  Deal
+  Deal,
+  Order,
+  OrderItem,
+  Payment
 };
-
 
 
 

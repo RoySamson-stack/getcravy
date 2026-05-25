@@ -44,7 +44,7 @@ const securityHeaders = helmet({
 // CORS configuration
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://goeat.com', 'https://www.goeat.com']
+        ? ['https://cravyapp.com', 'https://www.cravyapp.com']
         : ['http://localhost:3000', 'http://localhost:19006'],
     credentials: true,
     optionsSuccessStatus: 200

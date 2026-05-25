@@ -1,403 +1,237 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemeContext } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
 import { reservationAPI } from '../services/reservationAPI';
-import { eventAPI, Event } from '../services/eventAPI';
+
+const PRIMARY = '#E23744';
+const PAPER = '#F7F5F2';
+const INK = '#1A1A1A';
+const BORDER = '#EBEBEB';
+
+const fallbackReservation = {
+  id: 'preview-reservation',
+  restaurantId: 'preview-restaurant',
+  restaurant: { name: 'The Rooftop Kitchen' },
+  date: new Date().toISOString(),
+  time: '19:00',
+  partySize: 2,
+  status: 'pending',
+  specialRequests: 'Window table if available',
+};
 
 const BookingsScreen = ({ navigation }: any) => {
-  const theme = useContext(ThemeContext);
-  if (!theme) throw new Error('ThemeContext must be used within ThemeProvider');
-  const { colors } = theme;
   const { user } = useContext(AuthContext) || {};
-
-  const [activeTab, setActiveTab] = useState<'reservations' | 'events'>('reservations');
   const [reservations, setReservations] = useState<any[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user, activeTab]);
-
-  const fetchData = async () => {
+  const fetchReservations = async () => {
     try {
       setLoading(true);
-      if (activeTab === 'reservations') {
-        const result = await reservationAPI.getUserReservations({ upcoming: true });
-        if (result.success && result.reservations) {
-          setReservations(result.reservations);
-        }
-      } else {
-        // Fetch events user is attending
-        // Note: This would require a new API endpoint: GET /api/users/me/events
-        // For now, we'll show a placeholder
-        setEvents([]);
+      if (!user) {
+        setReservations([fallbackReservation]);
+        return;
       }
+
+      const result = await reservationAPI.getUserReservations({ upcoming: true });
+      setReservations(result.success && result.reservations?.length ? result.reservations : []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching reservations:', error);
+      setReservations([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
+  useEffect(() => {
+    fetchReservations();
+  }, [user]);
+
   const onRefresh = () => {
     setRefreshing(true);
-    fetchData();
+    fetchReservations();
   };
 
-  const renderReservation = (reservation: any) => (
-    <TouchableOpacity
-      style={[styles.bookingCard, { backgroundColor: colors.cardBackground }]}
-      onPress={() => navigation.navigate('Restaurant', { id: reservation.restaurantId })}
-    >
-      <View style={styles.bookingHeader}>
-        <View style={styles.bookingIconContainer}>
-          <Ionicons name="restaurant" size={24} color={colors.primary} />
-        </View>
-        <View style={styles.bookingInfo}>
-          <Text style={[styles.bookingTitle, { color: colors.text }]}>
-            {reservation.restaurant?.name || 'Restaurant'}
-          </Text>
-          <View style={styles.bookingMeta}>
-            <Ionicons name="calendar-outline" size={14} color={colors.textLight} />
-            <Text style={[styles.bookingMetaText, { color: colors.textLight }]}>
-              {new Date(reservation.date).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </Text>
-            <Ionicons name="time-outline" size={14} color={colors.textLight} style={styles.bookingMetaIcon} />
-            <Text style={[styles.bookingMetaText, { color: colors.textLight }]}>
-              {reservation.time}
-            </Text>
-            <Ionicons name="people-outline" size={14} color={colors.textLight} style={styles.bookingMetaIcon} />
-            <Text style={[styles.bookingMetaText, { color: colors.textLight }]}>
-              {reservation.partySize} guests
-            </Text>
-          </View>
-        </View>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(reservation.status) + '20' }]}>
-          <Text style={[styles.statusText, { color: getStatusColor(reservation.status) }]}>
-            {reservation.status}
-          </Text>
-        </View>
-      </View>
-      {reservation.specialRequests && (
-        <Text style={[styles.specialRequests, { color: colors.textLight }]}>
-          {reservation.specialRequests}
-        </Text>
-      )}
-    </TouchableOpacity>
-  );
-
-  const renderEvent = (event: Event) => (
-    <TouchableOpacity
-      style={[styles.bookingCard, { backgroundColor: colors.cardBackground }]}
-      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-    >
-      <View style={styles.bookingHeader}>
-        <View style={styles.bookingIconContainer}>
-          <Ionicons name="calendar" size={24} color={colors.primary} />
-        </View>
-        <View style={styles.bookingInfo}>
-          <Text style={[styles.bookingTitle, { color: colors.text }]}>{event.title}</Text>
-          <View style={styles.bookingMeta}>
-            <Ionicons name="calendar-outline" size={14} color={colors.textLight} />
-            <Text style={[styles.bookingMetaText, { color: colors.textLight }]}>
-              {new Date(event.date).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </Text>
-            <Ionicons name="time-outline" size={14} color={colors.textLight} style={styles.bookingMetaIcon} />
-            <Text style={[styles.bookingMetaText, { color: colors.textLight }]}>
-              {event.time.substring(0, 5)}
-            </Text>
-            <Ionicons name="location-outline" size={14} color={colors.textLight} style={styles.bookingMetaIcon} />
-            <Text style={[styles.bookingMetaText, { color: colors.textLight }]} numberOfLines={1}>
-              {event.location}
-            </Text>
-          </View>
-        </View>
-        {event.userAttendance && (
-          <View style={[styles.statusBadge, { backgroundColor: colors.primary + '20' }]}>
-            <Text style={[styles.statusText, { color: colors.primary }]}>
-              {event.userAttendance.status}
-            </Text>
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-
-  const getStatusColor = (status: string) => {
+  const statusTone = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'confirmed':
-        return colors.success;
-      case 'pending':
-        return colors.warning;
+        return '#00A86B';
       case 'cancelled':
-        return colors.error;
+        return '#8A8A8A';
       default:
-        return colors.textLight;
+        return PRIMARY;
     }
   };
 
-  if (!user) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.emptyContainer}>
-          <Ionicons name="person-outline" size={64} color={colors.textLight} />
-          <Text style={[styles.emptyText, { color: colors.text }]}>Please login to view bookings</Text>
-          <TouchableOpacity
-            style={[styles.loginButton, { backgroundColor: colors.primary }]}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
+  const displayReservations = reservations.length ? reservations : [];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab === 'reservations' && [styles.activeTab, { borderBottomColor: colors.primary }],
-          ]}
-          onPress={() => setActiveTab('reservations')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              { color: activeTab === 'reservations' ? colors.primary : colors.textLight },
-            ]}
-          >
-            Reservations
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab === 'events' && [styles.activeTab, { borderBottomColor: colors.primary }],
-          ]}
-          onPress={() => setActiveTab('events')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              { color: activeTab === 'events' ? colors.primary : colors.textLight },
-            ]}
-          >
-            Events
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Content */}
+    <View style={styles.shell}>
       <ScrollView
-        style={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
       >
+        <View style={styles.header}>
+          <View style={styles.statusRow}>
+            <Text style={styles.statusText}>9:41</Text>
+            <Ionicons name="battery-half" size={15} color="#FFFFFF" />
+          </View>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.headerTitle}>Bookings</Text>
+              <Text style={styles.headerSubtitle}>Reservations and table requests</Text>
+            </View>
+            <TouchableOpacity style={styles.headerCircle} onPress={() => navigation.navigate('Home')}>
+              <Ionicons name="home-outline" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.stepStrip}>
+          {['Pick time', 'Details', 'Confirmed'].map((label, index) => (
+            <View key={label} style={styles.stepItem}>
+              <View style={[styles.stepCircle, index < 3 && styles.stepCircleActive]}>
+                <Text style={[styles.stepNumber, index < 3 && styles.stepNumberActive]}>{index + 1}</Text>
+              </View>
+              <Text style={styles.stepLabel}>{label}</Text>
+            </View>
+          ))}
+        </View>
+
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={[styles.loadingText, { color: colors.textLight }]}>Loading...</Text>
+            <ActivityIndicator size="large" color={PRIMARY} />
+            <Text style={styles.loadingText}>Loading bookings...</Text>
           </View>
-        ) : activeTab === 'reservations' ? (
-          reservations.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="calendar-outline" size={64} color={colors.textLight} />
-              <Text style={[styles.emptyText, { color: colors.text }]}>No reservations</Text>
-              <Text style={[styles.emptySubtext, { color: colors.textLight }]}>
-                Book a table at your favorite restaurant
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.listContainer}>
-              {reservations.map((reservation) => (
-                <View key={reservation.id}>{renderReservation(reservation)}</View>
-              ))}
-            </View>
-          )
-        ) : events.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="calendar-outline" size={64} color={colors.textLight} />
-            <Text style={[styles.emptyText, { color: colors.text }]}>No events</Text>
-            <Text style={[styles.emptySubtext, { color: colors.textLight }]}>
-              Discover and attend exciting food events
-            </Text>
-            <TouchableOpacity
-              style={[styles.browseButton, { backgroundColor: colors.primary }]}
-              onPress={() => navigation.navigate('Events')}
-            >
-              <Text style={styles.browseButtonText}>Browse Events</Text>
+        ) : displayReservations.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <View style={styles.confirmIcon}><Ionicons name="calendar-outline" size={30} color={PRIMARY} /></View>
+            <Text style={styles.emptyTitle}>No reservations yet</Text>
+            <Text style={styles.emptySub}>Book a table from any restaurant page and it will show here.</Text>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('AllRestaurants')}>
+              <Text style={styles.primaryButtonText}>Find restaurants</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.listContainer}>
-            {events.map((event) => (
-              <View key={event.id}>{renderEvent(event)}</View>
-            ))}
+            <Text style={styles.sectionTitle}>Upcoming reservations</Text>
+            {displayReservations.map((reservation) => {
+              const date = new Date(reservation.date);
+              const tone = statusTone(reservation.status);
+              return (
+                <TouchableOpacity key={reservation.id} style={styles.bookingCard} onPress={() => navigation.navigate('Restaurant', { id: reservation.restaurantId })}>
+                  <View style={styles.cardTop}>
+                    <View style={styles.dateBox}>
+                      <Text style={styles.dateDay}>{date.getDate()}</Text>
+                      <Text style={styles.dateMonth}>{date.toLocaleDateString('en-US', { month: 'short' })}</Text>
+                    </View>
+                    <View style={styles.bookingInfo}>
+                      <Text style={styles.bookingTitle}>{reservation.restaurant?.name || 'Restaurant'}</Text>
+                      <Text style={styles.bookingMeta}>{reservation.time} · {reservation.partySize || 2} guests</Text>
+                    </View>
+                    <View style={[styles.statusBadge, { backgroundColor: `${tone}18` }]}>
+                      <Text style={[styles.statusBadgeText, { color: tone }]}>{reservation.status || 'pending'}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.summaryCard}>
+                    <SummaryRow label="Date" value={date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} />
+                    <SummaryRow label="Time" value={reservation.time || '19:00'} />
+                    <SummaryRow label="Guests" value={String(reservation.partySize || 2)} />
+                    <SummaryRow label="Status" value={reservation.status || 'pending'} red />
+                  </View>
+                  {!!reservation.specialRequests && <Text style={styles.specialText}>{reservation.specialRequests}</Text>}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         )}
+
+        <View style={{ height: 88 }} />
       </ScrollView>
+
+      <View style={styles.bottomNav}>
+        {[
+          ['home', 'Home', 'Home'],
+          ['search', 'Discover', 'AllRestaurants'],
+          ['calendar', 'Events', 'Events'],
+          ['pricetag', 'Deals', 'Home'],
+          ['person', 'Profile', 'Profile'],
+        ].map(([icon, label, target]) => (
+          <TouchableOpacity key={label} style={styles.navItem} onPress={() => navigation.navigate(target)}>
+            <Ionicons name={icon as any} size={22} color={label === 'Home' ? PRIMARY : '#BDBDBD'} />
+            <Text style={[styles.navLabel, label === 'Home' && styles.navLabelActive]}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 };
 
+const SummaryRow = ({ label, value, red }: { label: string; value: string; red?: boolean }) => (
+  <View style={styles.summaryRow}>
+    <Text style={styles.summaryLabel}>{label}</Text>
+    <Text style={[styles.summaryValue, red && styles.summaryValueRed]}>{value}</Text>
+  </View>
+);
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  content: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-  },
-  listContainer: {
-    padding: 20,
-  },
-  bookingCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  bookingHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  bookingIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  bookingInfo: {
-    flex: 1,
-  },
-  bookingTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  bookingMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  bookingMetaText: {
-    fontSize: 12,
-    marginLeft: 4,
-  },
-  bookingMetaIcon: {
-    marginLeft: 12,
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-  },
-  specialRequests: {
-    fontSize: 12,
-    marginTop: 8,
-    fontStyle: 'italic',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  loginButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  loginButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  browseButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  browseButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  shell: { flex: 1, backgroundColor: PAPER },
+  container: { flex: 1, backgroundColor: PAPER },
+  header: { backgroundColor: PRIMARY, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 },
+  statusRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  statusText: { color: '#FFFFFF', fontSize: 12, fontWeight: '800' },
+  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  headerTitle: { color: '#FFFFFF', fontSize: 24, fontWeight: '900' },
+  headerSubtitle: { color: 'rgba(255,255,255,0.72)', fontSize: 13, marginTop: 2 },
+  headerCircle: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
+  stepStrip: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: PRIMARY, paddingBottom: 13, paddingHorizontal: 12 },
+  stepItem: { alignItems: 'center', gap: 4 },
+  stepCircle: { width: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' },
+  stepCircleActive: { backgroundColor: '#FFFFFF' },
+  stepNumber: { color: '#FFFFFF', fontWeight: '900' },
+  stepNumberActive: { color: PRIMARY },
+  stepLabel: { color: '#FFFFFF', fontSize: 11, fontWeight: '800' },
+  listContainer: { padding: 16 },
+  sectionTitle: { color: INK, fontSize: 17, fontWeight: '900', marginBottom: 10 },
+  bookingCard: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: BORDER, padding: 12, marginBottom: 12 },
+  cardTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  dateBox: { backgroundColor: '#FFF4F4', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, alignItems: 'center', marginRight: 10 },
+  dateDay: { color: PRIMARY, fontSize: 20, fontWeight: '900', lineHeight: 22 },
+  dateMonth: { color: PRIMARY, fontSize: 11, textTransform: 'uppercase' },
+  bookingInfo: { flex: 1 },
+  bookingTitle: { color: INK, fontSize: 15, fontWeight: '900' },
+  bookingMeta: { color: '#888888', fontSize: 12, marginTop: 3 },
+  statusBadge: { borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4 },
+  statusBadgeText: { fontSize: 11, fontWeight: '900', textTransform: 'capitalize' },
+  summaryCard: { borderWidth: 1, borderColor: '#F2F2F2', borderRadius: 10, paddingHorizontal: 10 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
+  summaryLabel: { color: '#888888', fontSize: 12 },
+  summaryValue: { color: INK, fontSize: 12, fontWeight: '900', textTransform: 'capitalize' },
+  summaryValueRed: { color: PRIMARY },
+  specialText: { color: '#888888', fontSize: 12, fontStyle: 'italic', marginTop: 9 },
+  emptyCard: { alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: BORDER, margin: 16, padding: 20 },
+  confirmIcon: { width: 58, height: 58, borderRadius: 29, borderWidth: 2, borderColor: PRIMARY, backgroundColor: '#FFF4F4', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  emptyTitle: { color: INK, fontSize: 18, fontWeight: '900' },
+  emptySub: { color: '#888888', fontSize: 13, textAlign: 'center', lineHeight: 19, marginTop: 5, marginBottom: 14 },
+  primaryButton: { backgroundColor: PRIMARY, borderRadius: 10, paddingHorizontal: 18, paddingVertical: 12 },
+  primaryButtonText: { color: '#FFFFFF', fontWeight: '900' },
+  loadingContainer: { alignItems: 'center', paddingVertical: 70 },
+  loadingText: { color: '#888888', marginTop: 12 },
+  bottomNav: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: BORDER, paddingTop: 8, paddingBottom: 14 },
+  navItem: { alignItems: 'center', gap: 3 },
+  navLabel: { color: '#BDBDBD', fontSize: 11 },
+  navLabelActive: { color: PRIMARY, fontWeight: '900' },
 });
 
 export default BookingsScreen;
-
-

@@ -1,7 +1,7 @@
 {
-  "name": "goeat-admin",
+  "name": "cravyapp-admin",
   "version": "1.0.0",
-  "description": "GoEat Admin Portal",
+  "description": "cravyapp Admin Portal",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

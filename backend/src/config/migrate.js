@@ -5,6 +5,12 @@ require('../models/Restaurant');
 require('../models/MenuItem');
 require('../models/Review');
 require('../models/Reservation');
+require('../models/Event');
+require('../models/EventAttendee');
+require('../models/Deal');
+require('../models/Order');
+require('../models/OrderItem');
+require('../models/Payment');
 // Then load associations (this must be after all models are loaded)
 require('../models/associations');
 
@@ -24,4 +30,3 @@ const migrate = async () => {
 };
 
 migrate();
-

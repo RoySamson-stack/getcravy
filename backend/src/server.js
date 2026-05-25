@@ -19,6 +19,9 @@ require('./models/VideoComment');
 require('./models/Event');
 require('./models/EventAttendee');
 require('./models/Deal');
+require('./models/Order');
+require('./models/OrderItem');
+require('./models/Payment');
 require('./models/associations');
 
 const authRoutes = require('./routes/authRoutes');
@@ -29,7 +32,9 @@ const reservationRoutes = require('./routes/reservationRoutes');
 const videoRoutes = require('./routes/videoRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const dealRoutes = require('./routes/dealRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const orderController = require('./controllers/orderController');
 
 const app = express();
 
@@ -50,6 +55,9 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Paystack webhook needs the raw body for signature verification.
+app.post('/api/orders/paystack/webhook', express.raw({ type: 'application/json' }), orderController.handlePaystackWebhook);
+
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -63,7 +71,7 @@ if (process.env.NODE_ENV === 'development') {
 app.get('/health', (req, res) => {
   res.json({
     success: true,
-    message: 'GoEat API is running',
+    message: 'cravyapp API is running',
     timestamp: new Date().toISOString()
   });
 });
@@ -77,6 +85,7 @@ app.use('/api/reservations', reservationRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/deals', dealRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 
 // 404 handler
@@ -121,4 +130,3 @@ const startServer = async () => {
 startServer();
 
 module.exports = app;
-

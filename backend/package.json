@@ -1,7 +1,7 @@
 {
-  "name": "goeat-backend",
+  "name": "cravyapp-backend",
   "version": "1.0.0",
-  "description": "GoEat Backend API Server",
+  "description": "cravyapp Backend API Server",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

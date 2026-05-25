@@ -1,4 +1,4 @@
-# 🍔 GoEat - Restaurant & Events Discovery Platform
+# 🍔 cravyapp - Restaurant & Events Discovery Platform
 
 **Stop scrolling Instagram for hours. Find the best restaurants and food events in Nairobi—all in one place.**
 
@@ -378,7 +378,7 @@ For detailed information, see:
 
 ## 📞 Support
 
-- 📧 Email: support@goeat.com
+- 📧 Email: support@cravyapp.com
 - 🐛 Issues: [GitHub Issues](https://github.com/yourusername/getcravy/issues)
 
 ## 📊 Project Status
