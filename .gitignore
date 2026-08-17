@@ -86,6 +86,7 @@ Thumbs.db
 # Build outputs
 build/
 *.apk
+!website/downloads/cravyapp.apk
 *.aab
 *.ipa
 *.app

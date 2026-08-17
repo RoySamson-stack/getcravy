@@ -1,0 +1,2 @@
+# This directory contains the Android APK build artifact.
+# The APK is automatically built and committed by GitHub Actions on push to main.
